@@ -110,6 +110,13 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     }
 
     try {
+      // Find the submission to get analyst and deal info
+      const submission = submissions.find(sub => sub.id === submissionId);
+      if (!submission) {
+        toast.error("Submission not found");
+        return;
+      }
+
       // Check if rating exists, if so update, otherwise insert
       const { data: existingRating } = await supabase
         .from('leadership_ratings')
@@ -132,13 +139,15 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
           return;
         }
       } else {
-        // Insert new rating
+        // Insert new rating with analyst_name and deal_name
         const { error } = await supabase
           .from('leadership_ratings')
           .insert({
             submission_id: submissionId,
             rated_by: ratedBy,
-            rating
+            rating,
+            analyst_name: submission.analyst_email,
+            deal_name: submission.deal_name
           });
 
         if (error) {

@@ -44,6 +44,8 @@ export type Database = {
       }
       leadership_ratings: {
         Row: {
+          analyst_name: string
+          deal_name: string
           id: string
           rated_at: string
           rated_by: string
@@ -51,6 +53,8 @@ export type Database = {
           submission_id: string
         }
         Insert: {
+          analyst_name: string
+          deal_name: string
           id?: string
           rated_at?: string
           rated_by: string
@@ -58,6 +62,8 @@ export type Database = {
           submission_id: string
         }
         Update: {
+          analyst_name?: string
+          deal_name?: string
           id?: string
           rated_at?: string
           rated_by?: string
