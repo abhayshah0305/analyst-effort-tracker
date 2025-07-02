@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Shield, Database, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,19 +39,11 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
 
   const fetchSubmissions = async () => {
     try {
-      console.log('Fetching submissions for admin:', ratedBy);
-      
-      // Get current user session for debugging
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Current session:', session?.user?.email);
-      
       // Fetch all submissions - for admin users, the RLS policy should allow this
       const { data: submissionsData, error: submissionsError } = await supabase
         .from('analyst_submissions')
         .select('*')
         .order('submitted_at', { ascending: false });
-
-      console.log('Submissions query result:', { submissionsData, submissionsError });
 
       if (submissionsError) {
         console.error('Error fetching submissions:', submissionsError);
@@ -65,8 +56,6 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
         .from('leadership_ratings')
         .select('submission_id, rating')
         .eq('rated_by', ratedBy);
-
-      console.log('Ratings query result:', { ratingsData, ratingsError });
 
       if (ratingsError) {
         console.error('Error fetching ratings:', ratingsError);
@@ -84,8 +73,6 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
       const pendingSubmissions = submissionsData?.filter(submission => 
         !ratingsMap[submission.id]
       ) || [];
-
-      console.log('Pending submissions (unrated):', pendingSubmissions);
 
       setSubmissions(pendingSubmissions);
       setRatings({});
@@ -117,8 +104,8 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
         return;
       }
 
-      // Insert new rating with analyst_name and deal_name
-      const { error } = await supabase
+      // Insert new rating into leadership_ratings table
+      const { error: ratingsError } = await supabase
         .from('leadership_ratings')
         .insert({
           submission_id: submissionId,
@@ -128,9 +115,21 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
           deal_name: submission.deal_name
         });
 
-      if (error) {
-        console.error('Error submitting rating:', error);
+      if (ratingsError) {
+        console.error('Error submitting rating:', ratingsError);
         toast.error("Failed to submit rating");
+        return;
+      }
+
+      // Update the analyst_submissions table with the rating
+      const { error: updateError } = await supabase
+        .from('analyst_submissions')
+        .update({ rating })
+        .eq('id', submissionId);
+
+      if (updateError) {
+        console.error('Error updating submission with rating:', updateError);
+        toast.error("Failed to update submission with rating");
         return;
       }
 

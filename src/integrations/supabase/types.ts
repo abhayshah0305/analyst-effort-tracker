@@ -17,6 +17,7 @@ export type Database = {
           description: string
           hours_worked: number
           id: string
+          rating: number | null
           submitted_at: string
           type: string
         }
@@ -27,6 +28,7 @@ export type Database = {
           description: string
           hours_worked: number
           id?: string
+          rating?: number | null
           submitted_at?: string
           type: string
         }
@@ -37,6 +39,7 @@ export type Database = {
           description?: string
           hours_worked?: number
           id?: string
+          rating?: number | null
           submitted_at?: string
           type?: string
         }
