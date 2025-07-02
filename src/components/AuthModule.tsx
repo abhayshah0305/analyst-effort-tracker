@@ -106,11 +106,9 @@ const AuthModule = ({ onLogin }: AuthModuleProps) => {
             </Button>
           </form>
           
-          <div className="mt-6 p-4 bg-slate-50 rounded-lg">
-            <p className="text-xs text-slate-600 text-center">
-              <strong>Demo Credentials:</strong><br />
-              Use any of the provided email addresses<br />
-              with their corresponding passwords
+          <div className="mt-6 text-center">
+            <p className="text-xs text-slate-500">
+              © 2025 Integrow Asset Management. All rights reserved.
             </p>
           </div>
         </CardContent>
