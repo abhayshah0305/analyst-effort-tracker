@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,15 +38,23 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
 
   const fetchSubmissions = async () => {
     try {
-      // Fetch all submissions
+      console.log('Fetching submissions for admin:', ratedBy);
+      
+      // Get current user session for debugging
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Current session:', session?.user?.email);
+      
+      // Fetch all submissions - for admin users, the RLS policy should allow this
       const { data: submissionsData, error: submissionsError } = await supabase
         .from('analyst_submissions')
         .select('*')
         .order('submitted_at', { ascending: false });
 
+      console.log('Submissions query result:', { submissionsData, submissionsError });
+
       if (submissionsError) {
         console.error('Error fetching submissions:', submissionsError);
-        toast.error("Failed to fetch submissions");
+        toast.error("Failed to fetch submissions: " + submissionsError.message);
         return;
       }
 
@@ -57,9 +64,11 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
         .select('submission_id, rating')
         .eq('rated_by', ratedBy);
 
+      console.log('Ratings query result:', { ratingsData, ratingsError });
+
       if (ratingsError) {
         console.error('Error fetching ratings:', ratingsError);
-        toast.error("Failed to fetch existing ratings");
+        toast.error("Failed to fetch existing ratings: " + ratingsError.message);
         return;
       }
 
@@ -74,6 +83,8 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
         ...submission,
         rating: ratingsMap[submission.id]
       })) || [];
+
+      console.log('Final submissions with ratings:', submissionsWithRatings);
 
       setSubmissions(submissionsWithRatings);
       setRatings(ratingsMap);
@@ -181,6 +192,18 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
 
   return (
     <div className="space-y-6">
+      {/* Debug info */}
+      <Card className="shadow-lg border-0 bg-yellow-50">
+        <CardContent className="p-4">
+          <div className="text-sm text-slate-600">
+            <p><strong>Debug Info:</strong></p>
+            <p>Admin Email: {ratedBy}</p>
+            <p>Submissions Found: {submissions.length}</p>
+            <p>Check browser console for detailed logs</p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Header Card */}
       <Card className="shadow-lg border-0 bg-white">
         <CardHeader className="pb-4">
@@ -317,8 +340,10 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
         <Card className="shadow-lg border-0 bg-white">
           <CardContent className="text-center py-12">
             <Database className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-900 mb-2">No submissions yet</h3>
-            <p className="text-slate-600">Analyst submissions will appear here for rating.</p>
+            <h3 className="text-lg font-medium text-slate-900 mb-2">No submissions found</h3>
+            <p className="text-slate-600">
+              This could be due to Row Level Security policies. Check console for details.
+            </p>
           </CardContent>
         </Card>
       )}
