@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,7 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Star, Database, Users } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Shield, Database, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -78,16 +80,15 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
         return acc;
       }, {} as { [key: string]: number }) || {};
 
-      // Combine submissions with ratings
-      const submissionsWithRatings = submissionsData?.map(submission => ({
-        ...submission,
-        rating: ratingsMap[submission.id]
-      })) || [];
+      // Filter out submissions that already have ratings (pending submissions only)
+      const pendingSubmissions = submissionsData?.filter(submission => 
+        !ratingsMap[submission.id]
+      ) || [];
 
-      console.log('Final submissions with ratings:', submissionsWithRatings);
+      console.log('Pending submissions (unrated):', pendingSubmissions);
 
-      setSubmissions(submissionsWithRatings);
-      setRatings(ratingsMap);
+      setSubmissions(pendingSubmissions);
+      setRatings({});
     } catch (error) {
       console.error('Error in fetchSubmissions:', error);
       toast.error("Failed to load data");
@@ -105,7 +106,6 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
   const submitRating = async (submissionId: string) => {
     const rating = ratings[submissionId];
     if (!rating || rating < 1 || rating > 10) {
-      toast.error("Please enter a rating between 1 and 10");
       return;
     }
 
@@ -117,52 +117,30 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
         return;
       }
 
-      // Check if rating exists, if so update, otherwise insert
-      const { data: existingRating } = await supabase
+      // Insert new rating with analyst_name and deal_name
+      const { error } = await supabase
         .from('leadership_ratings')
-        .select('id')
-        .eq('submission_id', submissionId)
-        .eq('rated_by', ratedBy)
-        .single();
+        .insert({
+          submission_id: submissionId,
+          rated_by: ratedBy,
+          rating,
+          analyst_name: submission.analyst_email,
+          deal_name: submission.deal_name
+        });
 
-      if (existingRating) {
-        // Update existing rating
-        const { error } = await supabase
-          .from('leadership_ratings')
-          .update({ rating, rated_at: new Date().toISOString() })
-          .eq('submission_id', submissionId)
-          .eq('rated_by', ratedBy);
-
-        if (error) {
-          console.error('Error updating rating:', error);
-          toast.error("Failed to update rating");
-          return;
-        }
-      } else {
-        // Insert new rating with analyst_name and deal_name
-        const { error } = await supabase
-          .from('leadership_ratings')
-          .insert({
-            submission_id: submissionId,
-            rated_by: ratedBy,
-            rating,
-            analyst_name: submission.analyst_email,
-            deal_name: submission.deal_name
-          });
-
-        if (error) {
-          console.error('Error submitting rating:', error);
-          toast.error("Failed to submit rating");
-          return;
-        }
+      if (error) {
+        console.error('Error submitting rating:', error);
+        toast.error("Failed to submit rating");
+        return;
       }
 
-      // Update local state
-      setSubmissions(prev => 
-        prev.map(sub => 
-          sub.id === submissionId ? { ...sub, rating } : sub
-        )
-      );
+      // Remove the rated submission from the local state
+      setSubmissions(prev => prev.filter(sub => sub.id !== submissionId));
+      setRatings(prev => {
+        const newRatings = { ...prev };
+        delete newRatings[submissionId];
+        return newRatings;
+      });
 
       toast.success("Rating submitted successfully!");
     } catch (error) {
@@ -188,8 +166,6 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
   };
 
   const totalSubmissions = submissions.length;
-  const ratedSubmissions = submissions.filter(sub => sub.rating).length;
-  const averageRating = submissions.filter(sub => sub.rating).reduce((sum, sub) => sum + (sub.rating || 0), 0) / (ratedSubmissions || 1);
 
   if (loading) {
     return (
@@ -201,18 +177,6 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Debug info */}
-      <Card className="shadow-lg border-0 bg-yellow-50">
-        <CardContent className="p-4">
-          <div className="text-sm text-slate-600">
-            <p><strong>Debug Info:</strong></p>
-            <p>Admin Email: {ratedBy}</p>
-            <p>Submissions Found: {submissions.length}</p>
-            <p>Check browser console for detailed logs</p>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Header Card */}
       <Card className="shadow-lg border-0 bg-white">
         <CardHeader className="pb-4">
@@ -222,46 +186,30 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
             </div>
             <div>
               <CardTitle className="text-xl font-semibold text-slate-800">
-                Admin Dashboard - Leadership Ratings
+                Admin Dashboard - Pending Ratings
               </CardTitle>
               <CardDescription className="text-slate-600">
-                Review and rate analyst submissions (1-10 scale)
+                Review and rate pending analyst submissions (1-10 scale)
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-blue-50 p-4 rounded-lg">
               <div className="flex items-center space-x-2">
                 <Database className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Total Submissions</span>
+                <span className="text-sm font-medium text-blue-800">Pending Submissions</span>
               </div>
               <p className="text-2xl font-bold text-blue-900">{totalSubmissions}</p>
-            </div>
-            <div className="bg-green-50 p-4 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <Star className="w-5 h-5 text-green-600" />
-                <span className="text-sm font-medium text-green-800">Rated</span>
-              </div>
-              <p className="text-2xl font-bold text-green-900">{ratedSubmissions}</p>
             </div>
             <div className="bg-purple-50 p-4 rounded-lg">
               <div className="flex items-center space-x-2">
                 <Users className="w-5 h-5 text-purple-600" />
-                <span className="text-sm font-medium text-purple-800">Pending</span>
+                <span className="text-sm font-medium text-purple-800">Awaiting Review</span>
               </div>
-              <p className="text-2xl font-bold text-purple-900">{totalSubmissions - ratedSubmissions}</p>
-            </div>
-            <div className="bg-orange-50 p-4 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <Star className="w-5 h-5 text-orange-600" />
-                <span className="text-sm font-medium text-orange-800">Avg Rating</span>
-              </div>
-              <p className="text-2xl font-bold text-orange-900">
-                {ratedSubmissions > 0 ? averageRating.toFixed(1) : 'N/A'}
-              </p>
+              <p className="text-2xl font-bold text-purple-900">{totalSubmissions}</p>
             </div>
           </div>
         </CardContent>
@@ -313,30 +261,44 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            type="number"
-                            min="1"
-                            max="10"
-                            value={ratings[submission.id] || submission.rating || ''}
-                            onChange={(e) => handleRatingChange(submission.id, parseInt(e.target.value))}
-                            className="w-16 h-8"
-                            placeholder="1-10"
-                          />
-                          {submission.rating && (
-                            <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                          )}
-                        </div>
+                        <Input
+                          type="number"
+                          min="1"
+                          max="10"
+                          value={ratings[submission.id] || ''}
+                          onChange={(e) => handleRatingChange(submission.id, parseInt(e.target.value))}
+                          className="w-16 h-8"
+                          placeholder="1-10"
+                        />
                       </TableCell>
                       <TableCell>
-                        <Button 
-                          onClick={() => submitRating(submission.id)}
-                          size="sm"
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
-                          disabled={!ratings[submission.id] || ratings[submission.id] < 1 || ratings[submission.id] > 10}
-                        >
-                          {submission.rating ? 'Update' : 'Submit'}
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              size="sm"
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                              disabled={!ratings[submission.id] || ratings[submission.id] < 1 || ratings[submission.id] > 10}
+                            >
+                              Submit
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirm Rating Submission</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to submit a rating of <strong>{ratings[submission.id]}</strong> for <strong>{submission.analyst_email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong>'s work on <strong>{submission.deal_name}</strong>?
+                                <br /><br />
+                                This action will remove the submission from your pending list.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => submitRating(submission.id)}>
+                                Yes, Submit Rating
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -349,9 +311,9 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
         <Card className="shadow-lg border-0 bg-white">
           <CardContent className="text-center py-12">
             <Database className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-900 mb-2">No submissions found</h3>
+            <h3 className="text-lg font-medium text-slate-900 mb-2">No pending submissions</h3>
             <p className="text-slate-600">
-              This could be due to Row Level Security policies. Check console for details.
+              All submissions have been rated or there are no submissions to review.
             </p>
           </CardContent>
         </Card>
