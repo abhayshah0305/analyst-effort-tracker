@@ -39,8 +39,12 @@ const AuthModule = ({ onLogin }: AuthModuleProps) => {
     <div className="min-h-screen flex items-center justify-center bg-white">
       <Card className="w-full max-w-md mx-4 shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
         <CardHeader className="space-y-1 text-center pb-8">
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">I</span>
+          <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <img 
+              src="/lovable-uploads/dd6990e4-a19f-465b-b933-fcde114afb5e.png" 
+              alt="Integrow Logo" 
+              className="w-16 h-16 object-contain"
+            />
           </div>
           <CardTitle className="text-2xl font-bold text-slate-800">Welcome Back</CardTitle>
           <CardDescription className="text-slate-600">
