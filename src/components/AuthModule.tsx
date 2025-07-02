@@ -4,22 +4,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, User } from "lucide-react";
+import { Lock, Mail } from "lucide-react";
 
 interface AuthModuleProps {
   onLogin: (success: boolean) => void;
 }
 
 const AuthModule = ({ onLogin }: AuthModuleProps) => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   // Hardcoded credentials
-  const VALID_CREDENTIALS = {
-    username: "analyst",
-    password: "integrow2024"
-  };
+  const VALID_CREDENTIALS = [
+    { email: "harshal.mali@integrowamc.com", password: "Harshal123!#" },
+    { email: "vikash.gupta@integrowamc.com", password: "Vikash123!#" },
+    { email: "chinmay.panvelkar@integrowamc.com", password: "Chinmay123!#" },
+    { email: "nikunj.miyani@integrowamc.com", password: "Nikunj123!#" },
+    { email: "pratyush.gadodia@integrowamc.com", password: "Pratyush123!#" },
+    { email: "siddhanth.bakliwal@integrowamc.com", password: "Siddhanth123!#" },
+    { email: "abhay.shah@integrowamc.com", password: "Abhay123!#" }
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,8 +33,9 @@ const AuthModule = ({ onLogin }: AuthModuleProps) => {
     // Simulate loading delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const isValid = username === VALID_CREDENTIALS.username && 
-                   password === VALID_CREDENTIALS.password;
+    const isValid = VALID_CREDENTIALS.some(cred => 
+      cred.email === email && cred.password === password
+    );
     
     onLogin(isValid);
     setIsLoading(false);
@@ -56,17 +62,17 @@ const AuthModule = ({ onLogin }: AuthModuleProps) => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-sm font-medium text-slate-700">
-                Username
+              <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+                Email
               </Label>
               <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                 <Input
-                  id="username"
-                  type="text"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 h-12 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
@@ -103,8 +109,8 @@ const AuthModule = ({ onLogin }: AuthModuleProps) => {
           <div className="mt-6 p-4 bg-slate-50 rounded-lg">
             <p className="text-xs text-slate-600 text-center">
               <strong>Demo Credentials:</strong><br />
-              Username: analyst<br />
-              Password: integrow2024
+              Use any of the provided email addresses<br />
+              with their corresponding passwords
             </p>
           </div>
         </CardContent>
