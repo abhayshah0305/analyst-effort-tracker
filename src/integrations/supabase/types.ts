@@ -49,29 +49,35 @@ export type Database = {
         Row: {
           analyst_name: string
           deal_name: string
+          department: string
           id: string
           rated_at: string
           rated_by: string
           rating: number
           submission_id: string
+          type: string
         }
         Insert: {
           analyst_name: string
           deal_name: string
+          department: string
           id?: string
           rated_at?: string
           rated_by: string
           rating: number
           submission_id: string
+          type: string
         }
         Update: {
           analyst_name?: string
           deal_name?: string
+          department?: string
           id?: string
           rated_at?: string
           rated_by?: string
           rating?: number
           submission_id?: string
+          type?: string
         }
         Relationships: [
           {

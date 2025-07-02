@@ -104,7 +104,7 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
         return;
       }
 
-      // Insert new rating into leadership_ratings table
+      // Insert new rating into leadership_ratings table with department and type
       const { error: ratingsError } = await supabase
         .from('leadership_ratings')
         .insert({
@@ -112,7 +112,9 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
           rated_by: ratedBy,
           rating,
           analyst_name: submission.analyst_email,
-          deal_name: submission.deal_name
+          deal_name: submission.deal_name,
+          department: submission.department,
+          type: submission.type
         });
 
       if (ratingsError) {
