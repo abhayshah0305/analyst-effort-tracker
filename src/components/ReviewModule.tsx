@@ -43,10 +43,10 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
               </div>
               <div>
                 <CardTitle className="text-xl font-semibold text-slate-800">
-                  Review Submitted Entries
+                  Review Entries
                 </CardTitle>
                 <CardDescription className="text-slate-600">
-                  Review your entries before final database submission
+                  Review your entries before submitting to database
                 </CardDescription>
               </div>
             </div>
@@ -62,7 +62,7 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
         </CardHeader>
         
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-blue-50 p-4 rounded-lg">
               <div className="flex items-center space-x-2">
                 <FileCheck className="w-5 h-5 text-blue-600" />
@@ -76,13 +76,6 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
                 <span className="text-sm font-medium text-green-800">Total Hours</span>
               </div>
               <p className="text-2xl font-bold text-green-900">{totalHours.toFixed(1)}</p>
-            </div>
-            <div className="bg-purple-50 p-4 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <Database className="w-5 h-5 text-purple-600" />
-                <span className="text-sm font-medium text-purple-800">Ready for DB</span>
-              </div>
-              <p className="text-2xl font-bold text-purple-900">{data.length > 0 ? 'Yes' : 'No'}</p>
             </div>
           </div>
         </CardContent>
@@ -101,7 +94,7 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
                     <TableHead className="font-semibold text-slate-700">Type</TableHead>
                     <TableHead className="font-semibold text-slate-700">Hours</TableHead>
                     <TableHead className="font-semibold text-slate-700">Description</TableHead>
-                    <TableHead className="font-semibold text-slate-700">Submitted</TableHead>
+                    <TableHead className="font-semibold text-slate-700">Created</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -136,6 +129,20 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
                 </TableBody>
               </Table>
             </div>
+            
+            {/* Submit Button */}
+            <div className="p-6 border-t border-slate-200">
+              <div className="flex justify-center">
+                <Button 
+                  onClick={onFinalSubmit}
+                  size="lg"
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8"
+                >
+                  <Database className="w-5 h-5 mr-2" />
+                  Submit to Database
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       ) : (
@@ -147,30 +154,6 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
             <Button onClick={onBack} className="bg-blue-600 hover:bg-blue-700">
               Add First Entry
             </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Submit Button */}
-      {data.length > 0 && (
-        <Card className="shadow-lg border-0 bg-white">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                Ready to Submit to Database?
-              </h3>
-              <p className="text-slate-600 mb-6">
-                This will prepare your {data.length} entries for PostgreSQL database submission.
-              </p>
-              <Button 
-                onClick={onFinalSubmit}
-                size="lg"
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8"
-              >
-                <Database className="w-5 h-5 mr-2" />
-                Prepare for Database Submission
-              </Button>
-            </div>
           </CardContent>
         </Card>
       )}

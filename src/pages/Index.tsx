@@ -99,19 +99,38 @@ const Index = () => {
     return firstName.charAt(0).toUpperCase() + firstName.slice(1);
   };
 
-  const handleFormSubmit = async (data: Omit<FormData, 'id' | 'submittedAt'>) => {
+  const handleFormSubmit = (data: Omit<FormData, 'id' | 'submittedAt'>) => {
+    // Only store locally, don't save to database yet
+    const newEntry: FormData = {
+      ...data,
+      id: Date.now().toString(),
+      submittedAt: new Date().toISOString(),
+    };
+    setSubmittedData(prev => [...prev, newEntry]);
+    toast.success("Entry added to review list!");
+  };
+
+  const handleFinalSubmit = async () => {
+    if (submittedData.length === 0) {
+      toast.error("No entries to submit!");
+      return;
+    }
+
     try {
-      // Save to Supabase
+      // Prepare data for database insertion
+      const dataToInsert = submittedData.map(entry => ({
+        analyst_email: loggedInUser,
+        deal_name: entry.dealName,
+        department: entry.department,
+        type: entry.type,
+        hours_worked: entry.hoursWorked,
+        description: entry.description
+      }));
+
+      // Insert all entries to database
       const { error } = await supabase
         .from('analyst_submissions')
-        .insert({
-          analyst_email: loggedInUser,
-          deal_name: data.dealName,
-          department: data.department,
-          type: data.type,
-          hours_worked: data.hoursWorked,
-          description: data.description
-        });
+        .insert(dataToInsert);
 
       if (error) {
         console.error('Error saving to database:', error);
@@ -119,22 +138,16 @@ const Index = () => {
         return;
       }
 
-      // Also keep local state for review
-      const newEntry: FormData = {
-        ...data,
-        id: Date.now().toString(),
-        submittedAt: new Date().toISOString(),
-      };
-      setSubmittedData(prev => [...prev, newEntry]);
-      toast.success("Form submitted successfully!");
+      // Clear local data after successful submission
+      setSubmittedData([]);
+      toast.success(`Successfully submitted ${dataToInsert.length} entries to database!`);
+      
+      // Switch back to form view
+      setCurrentModule('form');
     } catch (error) {
-      console.error('Error submitting form:', error);
-      toast.error("Failed to submit form. Please try again.");
+      console.error('Error submitting entries:', error);
+      toast.error("Failed to submit entries. Please try again.");
     }
-  };
-
-  const handleFinalSubmit = () => {
-    toast.success("All entries have been saved to the database!");
   };
 
   if (!isAuthenticated) {
