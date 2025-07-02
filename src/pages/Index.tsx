@@ -2,6 +2,7 @@ import { useState } from "react";
 import AuthModule from "../components/AuthModule";
 import FormModule from "../components/FormModule";
 import ReviewModule from "../components/ReviewModule";
+import AdminModule from "../components/AdminModule";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -10,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface FormData {
   id: string;
@@ -23,9 +25,17 @@ export interface FormData {
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentModule, setCurrentModule] = useState<'form' | 'review'>('form');
+  const [currentModule, setCurrentModule] = useState<'form' | 'review' | 'admin'>('form');
   const [submittedData, setSubmittedData] = useState<FormData[]>([]);
   const [loggedInUser, setLoggedInUser] = useState<string>("");
+
+  // Define admin emails
+  const ADMIN_EMAILS = [
+    "abhay.shah@integrowamc.com",
+    // Add other admin emails here if needed
+  ];
+
+  const isAdmin = ADMIN_EMAILS.includes(loggedInUser);
 
   const handleLogin = (success: boolean, email?: string) => {
     if (success && email) {
@@ -50,20 +60,42 @@ const Index = () => {
     return firstName.charAt(0).toUpperCase() + firstName.slice(1);
   };
 
-  const handleFormSubmit = (data: Omit<FormData, 'id' | 'submittedAt'>) => {
-    const newEntry: FormData = {
-      ...data,
-      id: Date.now().toString(),
-      submittedAt: new Date().toISOString(),
-    };
-    setSubmittedData(prev => [...prev, newEntry]);
-    toast.success("Form submitted successfully!");
+  const handleFormSubmit = async (data: Omit<FormData, 'id' | 'submittedAt'>) => {
+    try {
+      // Save to Supabase
+      const { error } = await supabase
+        .from('analyst_submissions')
+        .insert({
+          analyst_email: loggedInUser,
+          deal_name: data.dealName,
+          department: data.department,
+          type: data.type,
+          hours_worked: data.hoursWorked,
+          description: data.description
+        });
+
+      if (error) {
+        console.error('Error saving to database:', error);
+        toast.error("Failed to save to database. Please try again.");
+        return;
+      }
+
+      // Also keep local state for review
+      const newEntry: FormData = {
+        ...data,
+        id: Date.now().toString(),
+        submittedAt: new Date().toISOString(),
+      };
+      setSubmittedData(prev => [...prev, newEntry]);
+      toast.success("Form submitted successfully!");
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast.error("Failed to submit form. Please try again.");
+    }
   };
 
   const handleFinalSubmit = () => {
-    // This will be connected to PostgreSQL later
-    console.log("Final submission to database:", submittedData);
-    toast.success("Data prepared for database submission!");
+    toast.success("All entries have been saved to the database!");
   };
 
   if (!isAuthenticated) {
@@ -125,6 +157,18 @@ const Index = () => {
             >
               Review & Submit ({submittedData.length})
             </button>
+            {isAdmin && (
+              <button
+                onClick={() => setCurrentModule('admin')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  currentModule === 'admin'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                }`}
+              >
+                Admin Dashboard
+              </button>
+            )}
           </div>
         </div>
       </nav>
@@ -133,13 +177,15 @@ const Index = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {currentModule === 'form' ? (
           <FormModule onSubmit={handleFormSubmit} />
-        ) : (
+        ) : currentModule === 'review' ? (
           <ReviewModule 
             data={submittedData} 
             onFinalSubmit={handleFinalSubmit}
             onBack={() => setCurrentModule('form')}
           />
-        )}
+        ) : currentModule === 'admin' && isAdmin ? (
+          <AdminModule ratedBy={loggedInUser} />
+        ) : null}
       </main>
     </div>
   );
