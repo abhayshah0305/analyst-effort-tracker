@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import AuthModule from "../components/AuthModule";
 import FormModule from "../components/FormModule";
 import ReviewModule from "../components/ReviewModule";
@@ -37,6 +38,37 @@ const Index = () => {
 
   const isAdmin = ADMIN_EMAILS.includes(loggedInUser);
 
+  // Check for existing session on component mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.email) {
+        setIsAuthenticated(true);
+        setLoggedInUser(session.user.email);
+        console.log('Session found:', session.user.email);
+      }
+    };
+
+    checkSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+        if (session?.user?.email) {
+          setIsAuthenticated(true);
+          setLoggedInUser(session.user.email);
+        } else {
+          setIsAuthenticated(false);
+          setLoggedInUser("");
+          setCurrentModule('form');
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleLogin = (success: boolean, email?: string) => {
     if (success && email) {
       setIsAuthenticated(true);
@@ -47,11 +79,18 @@ const Index = () => {
     }
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setCurrentModule('form');
-    setLoggedInUser("");
-    toast.success("Successfully logged out!");
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setIsAuthenticated(false);
+      setCurrentModule('form');
+      setLoggedInUser("");
+      setSubmittedData([]);
+      toast.success("Successfully logged out!");
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error("Logout failed");
+    }
   };
 
   const getFirstName = (email: string) => {
