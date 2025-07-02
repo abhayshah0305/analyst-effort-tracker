@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Lock, Mail } from "lucide-react";
 
 interface AuthModuleProps {
-  onLogin: (success: boolean) => void;
+  onLogin: (success: boolean, email?: string) => void;
 }
 
 const AuthModule = ({ onLogin }: AuthModuleProps) => {
@@ -37,7 +37,7 @@ const AuthModule = ({ onLogin }: AuthModuleProps) => {
       cred.email === email && cred.password === password
     );
     
-    onLogin(isValid);
+    onLogin(isValid, isValid ? email : undefined);
     setIsLoading(false);
   };
 

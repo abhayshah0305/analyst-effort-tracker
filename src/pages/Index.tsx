@@ -1,9 +1,15 @@
-
 import { useState } from "react";
 import AuthModule from "../components/AuthModule";
 import FormModule from "../components/FormModule";
 import ReviewModule from "../components/ReviewModule";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown, LogOut } from "lucide-react";
 
 export interface FormData {
   id: string;
@@ -19,10 +25,12 @@ const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentModule, setCurrentModule] = useState<'form' | 'review'>('form');
   const [submittedData, setSubmittedData] = useState<FormData[]>([]);
+  const [loggedInUser, setLoggedInUser] = useState<string>("");
 
-  const handleLogin = (success: boolean) => {
-    if (success) {
+  const handleLogin = (success: boolean, email?: string) => {
+    if (success && email) {
       setIsAuthenticated(true);
+      setLoggedInUser(email);
       toast.success("Successfully logged in!");
     } else {
       toast.error("Invalid credentials. Please try again.");
@@ -32,7 +40,14 @@ const Index = () => {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setCurrentModule('form');
+    setLoggedInUser("");
     toast.success("Successfully logged out!");
+  };
+
+  const getFirstName = (email: string) => {
+    const namePart = email.split('@')[0];
+    const firstName = namePart.split('.')[0];
+    return firstName.charAt(0).toUpperCase() + firstName.slice(1);
   };
 
   const handleFormSubmit = (data: Omit<FormData, 'id' | 'submittedAt'>) => {
@@ -70,12 +85,18 @@ const Index = () => {
                 <p className="text-sm text-slate-600">Analyst Effort Tracking System</p>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
-            >
-              Logout
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors">
+                <span>Hi {getFirstName(loggedInUser)}!</span>
+                <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
