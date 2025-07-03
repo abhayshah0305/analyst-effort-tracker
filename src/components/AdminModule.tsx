@@ -188,12 +188,6 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     return matchesSearch && matchesDepartment && matchesRating;
   });
 
-  // Calculate statistics
-  const totalSubmissions = submissions.length;
-  const totalRatings = ratings.length;
-  const averageRating = ratings.length > 0 ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1) : "0";
-  const pendingRatings = unratedSubmissions.length;
-
   if (submissionsLoading || ratingsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -224,39 +218,6 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
             </div>
           </div>
         </CardHeader>
-        
-        <CardContent>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                <span className="text-xs sm:text-sm font-medium text-blue-800">Total Submissions</span>
-              </div>
-              <p className="text-xl sm:text-2xl font-bold text-blue-900">{totalSubmissions}</p>
-            </div>
-            <div className="bg-green-50 p-3 sm:p-4 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <Star className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-                <span className="text-xs sm:text-sm font-medium text-green-800">Total Ratings</span>
-              </div>
-              <p className="text-xl sm:text-2xl font-bold text-green-900">{totalRatings}</p>
-            </div>
-            <div className="bg-purple-50 p-3 sm:p-4 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-                <span className="text-xs sm:text-sm font-medium text-purple-800">Avg Rating</span>
-              </div>
-              <p className="text-xl sm:text-2xl font-bold text-purple-900">{averageRating}</p>
-            </div>
-            <div className="bg-orange-50 p-3 sm:p-4 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
-                <span className="text-xs sm:text-sm font-medium text-orange-800">Pending</span>
-              </div>
-              <p className="text-xl sm:text-2xl font-bold text-orange-900">{pendingRatings}</p>
-            </div>
-          </div>
-        </CardContent>
       </Card>
 
       {/* Filters */}
