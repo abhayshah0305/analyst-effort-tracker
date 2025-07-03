@@ -96,32 +96,29 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     return colors[type] || 'bg-gray-100 text-gray-800';
   };
 
-  // Check if current user is admin
+  // Check if current user is admin using raw SQL query
   const { data: userRole } = useQuery({
     queryKey: ['user-role', ratedBy],
     queryFn: async () => {
       console.log('Checking user role for:', ratedBy);
       const { data, error } = await supabase
-        .from('user_roles')
-        .select('*')
-        .eq('user_email', ratedBy)
-        .single();
+        .rpc('is_admin', { user_email: ratedBy });
       
       if (error) {
-        console.error('Error fetching user role:', error);
-        return null;
+        console.error('Error checking admin status:', error);
+        return false;
       }
       
-      console.log('User role data:', data);
-      return data as UserRole;
+      console.log('User is admin:', data);
+      return data as boolean;
     },
     enabled: !!ratedBy
   });
 
   useEffect(() => {
-    if (userRole) {
-      setIsAdmin(userRole.role === 'admin');
-      console.log('User is admin:', userRole.role === 'admin');
+    if (userRole !== undefined) {
+      setIsAdmin(userRole);
+      console.log('User is admin:', userRole);
     }
   }, [userRole]);
 
@@ -239,7 +236,7 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
   };
 
   // Show loading state while checking user role
-  if (!userRole && ratedBy) {
+  if (userRole === undefined && ratedBy) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
