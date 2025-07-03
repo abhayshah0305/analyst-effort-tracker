@@ -35,7 +35,10 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
     "Debrief",
     "Coverage",
     "Asset Monitoring",
-    "CRE"
+    "CRE",
+    "Residental",
+    "Equity Enhancer Product",
+    "Co-Investments"
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
