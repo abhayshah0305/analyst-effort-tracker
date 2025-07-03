@@ -151,7 +151,7 @@ const Index = () => {
               <div className="min-w-0 flex-1">
                 <h1 className="text-sm sm:text-lg lg:text-xl xl:text-2xl font-bold text-slate-800 leading-tight">
                   <span className="block sm:hidden">Integrow Asset Management</span>
-                  <span className="hidden sm:block lg:hidden">Integrow Asset Mgmt</span>
+                  <span className="hidden sm:block lg:hidden">Integrow Asset Management</span>
                   <span className="hidden lg:block">Integrow Asset Management</span>
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-600 hidden sm:block leading-tight">
