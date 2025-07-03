@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,6 +41,12 @@ interface LeadershipRating {
   rated_by: string;
 }
 
+interface UserRole {
+  id: string;
+  user_email: string;
+  role: 'admin' | 'analyst';
+}
+
 const AdminModule = ({ ratedBy }: AdminModuleProps) => {
   const queryClient = useQueryClient();
   const [ratingInputs, setRatingInputs] = useState<{ [key: string]: string }>({});
@@ -52,6 +59,7 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     submissionId: '',
     rating: 0
   });
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Helper function to format analyst name from email
   const formatAnalystName = (email: string) => {
@@ -88,7 +96,36 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     return colors[type] || 'bg-gray-100 text-gray-800';
   };
 
-  // Fetch all analyst submissions
+  // Check if current user is admin
+  const { data: userRole } = useQuery({
+    queryKey: ['user-role', ratedBy],
+    queryFn: async () => {
+      console.log('Checking user role for:', ratedBy);
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('*')
+        .eq('user_email', ratedBy)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching user role:', error);
+        return null;
+      }
+      
+      console.log('User role data:', data);
+      return data as UserRole;
+    },
+    enabled: !!ratedBy
+  });
+
+  useEffect(() => {
+    if (userRole) {
+      setIsAdmin(userRole.role === 'admin');
+      console.log('User is admin:', userRole.role === 'admin');
+    }
+  }, [userRole]);
+
+  // Fetch all analyst submissions (only if admin)
   const { data: submissions = [], isLoading: submissionsLoading } = useQuery({
     queryKey: ['analyst-submissions'],
     queryFn: async () => {
@@ -105,10 +142,11 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
       
       console.log('Fetched submissions:', data);
       return data as AnalystSubmission[];
-    }
+    },
+    enabled: isAdmin
   });
 
-  // Fetch leadership ratings
+  // Fetch leadership ratings (only if admin)
   const { data: ratings = [], isLoading: ratingsLoading } = useQuery({
     queryKey: ['leadership-ratings'],
     queryFn: async () => {
@@ -125,7 +163,8 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
       
       console.log('Fetched ratings:', data);
       return data as LeadershipRating[];
-    }
+    },
+    enabled: isAdmin
   });
 
   // Get submissions that haven't been rated yet
@@ -136,7 +175,6 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
   console.log('Total submissions:', submissions.length);
   console.log('Total ratings:', ratings.length);
   console.log('Unrated submissions:', unratedSubmissions.length);
-  console.log('Unrated submissions data:', unratedSubmissions);
 
   // Rate submission mutation
   const rateMutation = useMutation({
@@ -199,6 +237,37 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
       });
     }
   };
+
+  // Show loading state while checking user role
+  if (!userRole && ratedBy) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Checking permissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show access denied if not admin
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Card className="max-w-md">
+          <CardContent className="p-8 text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users className="w-8 h-8 text-red-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-800 mb-2">
+              Access Denied
+            </h3>
+            <p className="text-slate-600">You don't have permission to access the admin dashboard.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (submissionsLoading || ratingsLoading) {
     return (
