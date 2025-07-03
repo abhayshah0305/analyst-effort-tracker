@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,12 +38,6 @@ interface LeadershipRating {
   task_date: string;
   rated_at: string;
   rated_by: string;
-}
-
-interface UserRole {
-  id: string;
-  user_email: string;
-  role: 'admin' | 'analyst';
 }
 
 const AdminModule = ({ ratedBy }: AdminModuleProps) => {
@@ -101,7 +94,7 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     queryKey: ['user-role', ratedBy],
     queryFn: async () => {
       console.log('Checking user role for:', ratedBy);
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .rpc('is_admin', { user_email: ratedBy });
       
       if (error) {
