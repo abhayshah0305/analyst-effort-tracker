@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -90,28 +89,46 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     return colors[type] || 'bg-gray-100 text-gray-800';
   };
 
-  // Check if current user is admin by querying user_roles table directly
+  // Check if current user is admin using hardcoded list as fallback
   const { data: userRole } = useQuery({
     queryKey: ['user-role', ratedBy],
     queryFn: async () => {
       console.log('Checking user role for:', ratedBy);
       
-      // Query the user_roles table directly instead of using RPC
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_email', ratedBy)
-        .maybeSingle();
+      // First check hardcoded admin list as fallback
+      const ADMIN_EMAILS = [
+        "abhay.shah@integrowamc.com",
+        "sanchi.jain@integrowamc.com"
+      ];
       
-      if (error) {
-        console.error('Error checking admin status:', error);
-        return false;
+      if (ADMIN_EMAILS.includes(ratedBy)) {
+        console.log('User is admin (hardcoded check):', true);
+        return true;
       }
       
-      const isAdminUser = data?.role === 'admin';
-      console.log('User role data:', data);
-      console.log('User is admin:', isAdminUser);
-      return isAdminUser;
+      // Try to query user_roles table, but don't fail if it has issues
+      try {
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_email', ratedBy)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error checking admin status:', error);
+          // Fall back to hardcoded check
+          return ADMIN_EMAILS.includes(ratedBy);
+        }
+        
+        const isAdminUser = data?.role === 'admin';
+        console.log('User role data:', data);
+        console.log('User is admin:', isAdminUser);
+        return isAdminUser;
+      } catch (error) {
+        console.error('Failed to check user role:', error);
+        // Fall back to hardcoded check
+        return ADMIN_EMAILS.includes(ratedBy);
+      }
     },
     enabled: !!ratedBy
   });
