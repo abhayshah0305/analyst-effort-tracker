@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,6 +49,15 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     rating: 0
   });
 
+  // Helper function to format analyst name from email
+  const formatAnalystName = (email: string) => {
+    const username = email.split('@')[0];
+    return username
+      .split('.')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   // Fetch all analyst submissions
   const { data: submissions = [], isLoading: submissionsLoading } = useQuery({
     queryKey: ['analyst-submissions'],
@@ -96,7 +104,7 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
         .insert([{
           submission_id: submissionId,
           rating: rating,
-          analyst_name: submission.analyst_email.split('@')[0],
+          analyst_name: formatAnalystName(submission.analyst_email),
           deal_name: submission.deal_name,
           department: submission.department,
           type: submission.type,
@@ -234,7 +242,7 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
                     {unratedSubmissions.map((submission) => (
                       <TableRow key={submission.id} className="hover:bg-slate-50">
                         <TableCell className="font-medium text-slate-900 text-xs sm:text-sm">
-                          {submission.analyst_email.split('@')[0]}
+                          {formatAnalystName(submission.analyst_email)}
                         </TableCell>
                         <TableCell className="font-medium text-slate-900 text-xs sm:text-sm">
                           {submission.deal_name}
