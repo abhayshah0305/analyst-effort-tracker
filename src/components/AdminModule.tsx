@@ -5,9 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Calendar, Star, TrendingUp, Users, Search, Filter, Calendar as CalendarIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Calendar, Users, Calendar as CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -43,6 +43,12 @@ interface LeadershipRating {
 
 const AdminModule = ({ ratedBy }: AdminModuleProps) => {
   const queryClient = useQueryClient();
+  const [ratingInputs, setRatingInputs] = useState<{ [key: string]: string }>({});
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; submissionId: string; rating: number }>({
+    open: false,
+    submissionId: '',
+    rating: 0
+  });
 
   // Fetch all analyst submissions
   const { data: submissions = [], isLoading: submissionsLoading } = useQuery({
@@ -103,6 +109,8 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leadership-ratings'] });
       toast.success("Rating submitted successfully!");
+      setConfirmDialog({ open: false, submissionId: '', rating: 0 });
+      setRatingInputs({});
     },
     onError: (error) => {
       console.error('Error submitting rating:', error);
@@ -110,8 +118,36 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     }
   });
 
-  const handleRateSubmission = (submission: AnalystSubmission, rating: number) => {
-    rateMutation.mutate({ submissionId: submission.id, rating, submission });
+  const handleRatingInputChange = (submissionId: string, value: string) => {
+    setRatingInputs(prev => ({
+      ...prev,
+      [submissionId]: value
+    }));
+  };
+
+  const handleSubmitRating = (submission: AnalystSubmission) => {
+    const ratingValue = parseInt(ratingInputs[submission.id] || '0');
+    if (ratingValue < 1 || ratingValue > 10) {
+      toast.error("Rating must be between 1 and 10");
+      return;
+    }
+    
+    setConfirmDialog({
+      open: true,
+      submissionId: submission.id,
+      rating: ratingValue
+    });
+  };
+
+  const confirmSubmitRating = () => {
+    const submission = unratedSubmissions.find(s => s.id === confirmDialog.submissionId);
+    if (submission) {
+      rateMutation.mutate({ 
+        submissionId: confirmDialog.submissionId, 
+        rating: confirmDialog.rating, 
+        submission 
+      });
+    }
   };
 
   const getDepartmentColor = (department: string) => {
@@ -148,106 +184,138 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
-      <Card className="shadow-lg border-0 bg-white">
-        <CardHeader className="pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-            </div>
-            <div className="min-w-0">
-              <CardTitle className="text-lg sm:text-xl font-semibold text-slate-800">
-                Admin Dashboard
-              </CardTitle>
-              <CardDescription className="text-sm sm:text-base text-slate-600">
-                Rate analyst submissions and view performance metrics
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Pending Ratings */}
-      {unratedSubmissions.length > 0 && (
+    <>
+      <div className="space-y-4 sm:space-y-6">
+        {/* Header */}
         <Card className="shadow-lg border-0 bg-white">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-slate-800 flex items-center">
-              <Calendar className="w-5 h-5 mr-2 text-orange-600" />
-              Pending Ratings ({unratedSubmissions.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-slate-50">
-                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Analyst</TableHead>
-                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Deal/Project</TableHead>
-                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Department</TableHead>
-                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Type</TableHead>
-                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Task Date</TableHead>
-                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Hours</TableHead>
-                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm hidden md:table-cell">Description</TableHead>
-                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Rating</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {unratedSubmissions.map((submission) => (
-                    <TableRow key={submission.id} className="hover:bg-slate-50">
-                      <TableCell className="font-medium text-slate-900 text-xs sm:text-sm">
-                        {submission.analyst_email.split('@')[0]}
-                      </TableCell>
-                      <TableCell className="font-medium text-slate-900 text-xs sm:text-sm">
-                        {submission.deal_name}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={`${getDepartmentColor(submission.department)} text-xs`}>
-                          {submission.department}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={`${getTypeColor(submission.type)} text-xs`}>
-                          {submission.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-xs sm:text-sm text-slate-700">
-                        <div className="flex items-center gap-1">
-                          <CalendarIcon className="w-3 h-3 text-slate-500" />
-                          {new Date(submission.task_date).toLocaleDateString()}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium text-slate-700 text-xs sm:text-sm">
-                        {submission.hours_worked}h
-                      </TableCell>
-                      <TableCell className="max-w-xs hidden md:table-cell">
-                        <div className="truncate text-slate-600 text-xs sm:text-sm" title={submission.description}>
-                          {submission.description}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Select onValueChange={(value) => handleRateSubmission(submission, parseInt(value))}>
-                          <SelectTrigger className="w-20">
-                            <SelectValue placeholder="Rate" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="5">5 ⭐</SelectItem>
-                            <SelectItem value="4">4 ⭐</SelectItem>
-                            <SelectItem value="3">3 ⭐</SelectItem>
-                            <SelectItem value="2">2 ⭐</SelectItem>
-                            <SelectItem value="1">1 ⭐</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+          <CardHeader className="pb-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <CardTitle className="text-lg sm:text-xl font-semibold text-slate-800">
+                  Admin Dashboard
+                </CardTitle>
+                <CardDescription className="text-sm sm:text-base text-slate-600">
+                  Rate analyst submissions and view performance metrics
+                </CardDescription>
+              </div>
             </div>
-          </CardContent>
+          </CardHeader>
         </Card>
-      )}
-    </div>
+
+        {/* Pending Ratings */}
+        {unratedSubmissions.length > 0 && (
+          <Card className="shadow-lg border-0 bg-white">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center">
+                <Calendar className="w-5 h-5 mr-2 text-orange-600" />
+                Pending Ratings ({unratedSubmissions.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-slate-50">
+                      <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Analyst</TableHead>
+                      <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Deal/Project</TableHead>
+                      <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Department</TableHead>
+                      <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Type</TableHead>
+                      <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Task Date</TableHead>
+                      <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Hours</TableHead>
+                      <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm hidden md:table-cell">Description</TableHead>
+                      <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Rating (1-10)</TableHead>
+                      <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {unratedSubmissions.map((submission) => (
+                      <TableRow key={submission.id} className="hover:bg-slate-50">
+                        <TableCell className="font-medium text-slate-900 text-xs sm:text-sm">
+                          {submission.analyst_email.split('@')[0]}
+                        </TableCell>
+                        <TableCell className="font-medium text-slate-900 text-xs sm:text-sm">
+                          {submission.deal_name}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={`${getDepartmentColor(submission.department)} text-xs`}>
+                            {submission.department}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={`${getTypeColor(submission.type)} text-xs`}>
+                            {submission.type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs sm:text-sm text-slate-700">
+                          <div className="flex items-center gap-1">
+                            <CalendarIcon className="w-3 h-3 text-slate-500" />
+                            {new Date(submission.task_date).toLocaleDateString()}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium text-slate-700 text-xs sm:text-sm">
+                          {submission.hours_worked}h
+                        </TableCell>
+                        <TableCell className="max-w-xs hidden md:table-cell">
+                          <div className="truncate text-slate-600 text-xs sm:text-sm" title={submission.description}>
+                            {submission.description}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            min="1"
+                            max="10"
+                            className="w-20"
+                            placeholder="1-10"
+                            value={ratingInputs[submission.id] || ''}
+                            onChange={(e) => handleRatingInputChange(submission.id, e.target.value)}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            onClick={() => handleSubmitRating(submission)}
+                            disabled={!ratingInputs[submission.id] || rateMutation.isPending}
+                            size="sm"
+                          >
+                            Submit
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Rating Submission</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to submit a rating of {confirmDialog.rating} for this submission?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setConfirmDialog({ open: false, submissionId: '', rating: 0 })}
+            >
+              Cancel
+            </Button>
+            <Button onClick={confirmSubmitRating} disabled={rateMutation.isPending}>
+              {rateMutation.isPending ? 'Submitting...' : 'Confirm'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
