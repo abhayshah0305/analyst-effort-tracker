@@ -59,6 +59,35 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     return username.split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join(' ');
   };
 
+  // Helper function to get department color
+  const getDepartmentColor = (department: string) => {
+    const colors: { [key: string]: string } = {
+      'Technology': 'bg-blue-100 text-blue-800',
+      'AMP': 'bg-green-100 text-green-800',
+      'Sales/Fundraise': 'bg-purple-100 text-purple-800',
+      'Debrief': 'bg-orange-100 text-orange-800',
+      'Coverage': 'bg-indigo-100 text-indigo-800',
+      'Asset Monitoring': 'bg-pink-100 text-pink-800',
+      'CRE': 'bg-yellow-100 text-yellow-800',
+      'Residental': 'bg-teal-100 text-teal-800',
+      'Equity Enhancer Product': 'bg-red-100 text-red-800',
+      'Co-Investments': 'bg-cyan-100 text-cyan-800'
+    };
+    return colors[department] || 'bg-gray-100 text-gray-800';
+  };
+
+  // Helper function to get type color
+  const getTypeColor = (type: string) => {
+    const colors: { [key: string]: string } = {
+      'Administrative': 'bg-slate-100 text-slate-800',
+      'Research': 'bg-blue-100 text-blue-800',
+      'Analysis': 'bg-green-100 text-green-800',
+      'Meetings': 'bg-orange-100 text-orange-800',
+      'Documentation': 'bg-purple-100 text-purple-800'
+    };
+    return colors[type] || 'bg-gray-100 text-gray-800';
+  };
+
   // Fetch all analyst submissions
   const { data: submissions = [], isLoading: submissionsLoading } = useQuery({
     queryKey: ['analyst-submissions'],
@@ -170,8 +199,6 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
       });
     }
   };
-
-  // ... keep existing code (getDepartmentColor and getTypeColor functions)
 
   if (submissionsLoading || ratingsLoading) {
     return (
