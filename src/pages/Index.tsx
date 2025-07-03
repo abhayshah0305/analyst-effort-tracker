@@ -113,6 +113,20 @@ const Index = () => {
     setSubmittedData(prev => [...prev, newEntry]);
     toast.success("Entry added to review list!");
   };
+  const handleEditEntry = (id: string, updatedEntry: Omit<FormData, 'id' | 'submittedAt'>) => {
+    setSubmittedData(prev => 
+      prev.map(entry => 
+        entry.id === id 
+          ? { ...entry, ...updatedEntry }
+          : entry
+      )
+    );
+    toast.success("Entry updated successfully!");
+  };
+  const handleDeleteEntry = (id: string) => {
+    setSubmittedData(prev => prev.filter(entry => entry.id !== id));
+    toast.success("Entry deleted successfully!");
+  };
   const handleFinalSubmit = async () => {
     if (submittedData.length === 0) {
       toast.error("No entries to submit!");
@@ -154,7 +168,8 @@ const Index = () => {
   if (!isAuthenticated) {
     return <AuthModule onLogin={handleLogin} />;
   }
-  return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <header className="bg-white shadow-lg border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -224,12 +239,16 @@ const Index = () => {
           <ReviewModule 
             data={submittedData} 
             onFinalSubmit={handleFinalSubmit} 
-            onBack={() => setCurrentModule('form')} 
+            onBack={() => setCurrentModule('form')}
+            onEditEntry={handleEditEntry}
+            onDeleteEntry={handleDeleteEntry}
           />
         ) : currentModule === 'admin' && isAdmin ? (
           <AdminModule ratedBy={loggedInUser} />
         ) : null}
       </main>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
