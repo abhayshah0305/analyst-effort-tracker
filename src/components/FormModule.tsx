@@ -70,8 +70,8 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
       const hours = parseFloat(formData.hoursWorked);
       if (isNaN(hours) || hours <= 0) {
         errors.hoursWorked = "Hours must be greater than 0";
-      } else if (hours > 24) {
-        errors.hoursWorked = "Hours cannot exceed 24 per day";
+      } else if (hours > 200) {
+        errors.hoursWorked = "Hours cannot exceed 200";
       }
     }
 
@@ -320,7 +320,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
               type="number"
               step="0.5"
               min="0"
-              max="24"
+              max="200"
               placeholder="Enter hours worked"
               value={formData.hoursWorked}
               onChange={(e) => {
