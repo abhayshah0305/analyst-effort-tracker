@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,21 +90,28 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     return colors[type] || 'bg-gray-100 text-gray-800';
   };
 
-  // Check if current user is admin using raw SQL query
+  // Check if current user is admin by querying user_roles table directly
   const { data: userRole } = useQuery({
     queryKey: ['user-role', ratedBy],
     queryFn: async () => {
       console.log('Checking user role for:', ratedBy);
-      const { data, error } = await (supabase as any)
-        .rpc('is_admin', { user_email: ratedBy });
+      
+      // Query the user_roles table directly instead of using RPC
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_email', ratedBy)
+        .maybeSingle();
       
       if (error) {
         console.error('Error checking admin status:', error);
         return false;
       }
       
-      console.log('User is admin:', data);
-      return data as boolean;
+      const isAdminUser = data?.role === 'admin';
+      console.log('User role data:', data);
+      console.log('User is admin:', isAdminUser);
+      return isAdminUser;
     },
     enabled: !!ratedBy
   });
