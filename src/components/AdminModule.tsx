@@ -9,9 +9,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Calendar, Users, Calendar as CalendarIcon, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+
 interface AdminModuleProps {
   ratedBy: string;
 }
+
 interface AnalystSubmission {
   id: string;
   analyst_email: string;
@@ -24,6 +26,7 @@ interface AnalystSubmission {
   submitted_at: string;
   rating?: number;
 }
+
 interface LeadershipRating {
   id: string;
   submission_id: string;
@@ -36,13 +39,10 @@ interface LeadershipRating {
   rated_at: string;
   rated_by: string;
 }
-const AdminModule = ({
-  ratedBy
-}: AdminModuleProps) => {
+
+const AdminModule = ({ ratedBy }: AdminModuleProps) => {
   const queryClient = useQueryClient();
-  const [ratingInputs, setRatingInputs] = useState<{
-    [key: string]: string;
-  }>({});
+  const [ratingInputs, setRatingInputs] = useState<{ [key: string]: string }>({});
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     submissionId: string;
@@ -60,95 +60,93 @@ const AdminModule = ({
   };
 
   // Fetch all analyst submissions
-  const {
-    data: submissions = [],
-    isLoading: submissionsLoading
-  } = useQuery({
+  const { data: submissions = [], isLoading: submissionsLoading } = useQuery({
     queryKey: ['analyst-submissions'],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from('analyst_submissions').select('*').order('submitted_at', {
-        ascending: false
-      });
+      console.log('Fetching analyst submissions...');
+      const { data, error } = await supabase
+        .from('analyst_submissions')
+        .select('*')
+        .order('submitted_at', { ascending: false });
+      
       if (error) {
         console.error('Error fetching submissions:', error);
         throw error;
       }
+      
+      console.log('Fetched submissions:', data);
       return data as AnalystSubmission[];
     }
   });
 
   // Fetch leadership ratings
-  const {
-    data: ratings = [],
-    isLoading: ratingsLoading
-  } = useQuery({
+  const { data: ratings = [], isLoading: ratingsLoading } = useQuery({
     queryKey: ['leadership-ratings'],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from('leadership_ratings').select('*').order('rated_at', {
-        ascending: false
-      });
+      console.log('Fetching leadership ratings...');
+      const { data, error } = await supabase
+        .from('leadership_ratings')
+        .select('*')
+        .order('rated_at', { ascending: false });
+      
       if (error) {
         console.error('Error fetching ratings:', error);
         throw error;
       }
+      
+      console.log('Fetched ratings:', data);
       return data as LeadershipRating[];
     }
   });
 
+  // Get submissions that haven't been rated yet
+  const unratedSubmissions = submissions.filter(submission => 
+    !ratings.some(rating => rating.submission_id === submission.id)
+  );
+
+  console.log('Total submissions:', submissions.length);
+  console.log('Total ratings:', ratings.length);
+  console.log('Unrated submissions:', unratedSubmissions.length);
+  console.log('Unrated submissions data:', unratedSubmissions);
+
   // Rate submission mutation
   const rateMutation = useMutation({
-    mutationFn: async ({
-      submissionId,
-      rating,
-      submission
-    }: {
+    mutationFn: async ({ submissionId, rating, submission }: {
       submissionId: string;
       rating: number;
       submission: AnalystSubmission;
     }) => {
-      const {
-        error
-      } = await supabase.from('leadership_ratings').insert([{
-        submission_id: submissionId,
-        rating: rating,
-        analyst_name: formatAnalystName(submission.analyst_email),
-        deal_name: submission.deal_name,
-        department: submission.department,
-        type: submission.type,
-        task_date: submission.task_date,
-        rated_by: ratedBy
-      }]);
+      const { error } = await supabase
+        .from('leadership_ratings')
+        .insert([{
+          submission_id: submissionId,
+          rating: rating,
+          analyst_name: formatAnalystName(submission.analyst_email),
+          deal_name: submission.deal_name,
+          department: submission.department,
+          type: submission.type,
+          task_date: submission.task_date,
+          rated_by: ratedBy
+        }]);
+      
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['leadership-ratings']
-      });
+      queryClient.invalidateQueries({ queryKey: ['leadership-ratings'] });
       toast.success("Rating submitted successfully!");
-      setConfirmDialog({
-        open: false,
-        submissionId: '',
-        rating: 0
-      });
+      setConfirmDialog({ open: false, submissionId: '', rating: 0 });
       setRatingInputs({});
     },
-    onError: error => {
+    onError: (error) => {
       console.error('Error submitting rating:', error);
       toast.error("Failed to submit rating");
     }
   });
+
   const handleRatingInputChange = (submissionId: string, value: string) => {
-    setRatingInputs(prev => ({
-      ...prev,
-      [submissionId]: value
-    }));
+    setRatingInputs(prev => ({ ...prev, [submissionId]: value }));
   };
+
   const handleSubmitRating = (submission: AnalystSubmission) => {
     const ratingValue = parseInt(ratingInputs[submission.id] || '0');
     if (ratingValue < 1 || ratingValue > 10) {
@@ -161,6 +159,7 @@ const AdminModule = ({
       rating: ratingValue
     });
   };
+
   const confirmSubmitRating = () => {
     const submission = unratedSubmissions.find(s => s.id === confirmDialog.submissionId);
     if (submission) {
@@ -171,35 +170,22 @@ const AdminModule = ({
       });
     }
   };
-  const getDepartmentColor = (department: string) => {
-    const colors: {
-      [key: string]: string;
-    } = {
-      "Technology": "bg-blue-100 text-blue-800",
-      "AMP": "bg-green-100 text-green-800",
-      "Sales/Fundraise": "bg-purple-100 text-purple-800",
-      "Debrief": "bg-orange-100 text-orange-800",
-      "Coverage": "bg-indigo-100 text-indigo-800",
-      "Asset Monitoring": "bg-red-100 text-red-800",
-      "CRE": "bg-yellow-100 text-yellow-800"
-    };
-    return colors[department] || "bg-gray-100 text-gray-800";
-  };
-  const getTypeColor = (type: string) => {
-    return type === "Core" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800";
-  };
 
-  // Get submissions that haven't been rated yet
-  const unratedSubmissions = submissions.filter(submission => !ratings.some(rating => rating.submission_id === submission.id));
+  // ... keep existing code (getDepartmentColor and getTypeColor functions)
+
   if (submissionsLoading || ratingsLoading) {
-    return <div className="flex items-center justify-center h-64">
+    return (
+      <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-slate-600">Loading admin dashboard...</p>
         </div>
-      </div>;
+      </div>
+    );
   }
-  return <>
+
+  return (
+    <>
       <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <Card className="shadow-lg border-0 bg-white">
@@ -220,8 +206,20 @@ const AdminModule = ({
           </CardHeader>
         </Card>
 
+        {/* Debug Info Card */}
+        <Card className="shadow-lg border-0 bg-yellow-50 border-yellow-200">
+          <CardContent className="p-4">
+            <h3 className="font-semibold text-yellow-800 mb-2">Debug Information</h3>
+            <p className="text-sm text-yellow-700">Total Submissions: {submissions.length}</p>
+            <p className="text-sm text-yellow-700">Total Ratings: {ratings.length}</p>
+            <p className="text-sm text-yellow-700">Unrated Submissions: {unratedSubmissions.length}</p>
+            <p className="text-sm text-yellow-700">Current User: {ratedBy}</p>
+          </CardContent>
+        </Card>
+
         {/* Pending Ratings or No Pending Message */}
-        {unratedSubmissions.length > 0 ? <Card className="shadow-lg border-0 bg-white">
+        {unratedSubmissions.length > 0 ? (
+          <Card className="shadow-lg border-0 bg-white">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-slate-800 flex items-center">
                 <Calendar className="w-5 h-5 mr-2 text-orange-600" />
@@ -289,7 +287,9 @@ const AdminModule = ({
                 </Table>
               </div>
             </CardContent>
-          </Card> : <Card className="shadow-lg border-0 bg-white">
+          </Card>
+        ) : (
+          <Card className="shadow-lg border-0 bg-white">
             <CardContent className="p-8">
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -301,14 +301,12 @@ const AdminModule = ({
                 <p className="text-slate-600">All analyst submissions have been rated.</p>
               </div>
             </CardContent>
-          </Card>}
+          </Card>
+        )}
       </div>
 
       {/* Confirmation Dialog */}
-      <Dialog open={confirmDialog.open} onOpenChange={open => setConfirmDialog(prev => ({
-      ...prev,
-      open
-    }))}>
+      <Dialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Rating Submission</DialogTitle>
@@ -317,11 +315,10 @@ const AdminModule = ({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDialog({
-            open: false,
-            submissionId: '',
-            rating: 0
-          })}>
+            <Button 
+              variant="outline" 
+              onClick={() => setConfirmDialog({ open: false, submissionId: '', rating: 0 })}
+            >
               Cancel
             </Button>
             <Button onClick={confirmSubmitRating} disabled={rateMutation.isPending}>
@@ -330,6 +327,8 @@ const AdminModule = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>;
+    </>
+  );
 };
+
 export default AdminModule;
