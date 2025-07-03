@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -48,7 +47,7 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
       {/* Header Card */}
       <Card className="shadow-lg border-0 bg-white">
         <CardHeader className="pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
                 <FileCheck className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -65,11 +64,10 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
             <Button
               onClick={onBack}
               variant="outline"
-              className="border-slate-300 hover:bg-slate-50 w-full sm:w-auto"
-              size="sm"
+              size="icon"
+              className="border-slate-300 hover:bg-slate-50 flex-shrink-0"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Form
+              <ArrowLeft className="w-4 h-4" />
             </Button>
           </div>
         </CardHeader>
