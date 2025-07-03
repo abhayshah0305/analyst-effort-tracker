@@ -49,8 +49,8 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
     // Deal name validation
     if (!formData.dealName.trim()) {
       errors.dealName = "Deal name is required";
-    } else if (formData.dealName.length > 100) {
-      errors.dealName = "Deal name must be 100 characters or less";
+    } else if (formData.dealName.length > 50) {
+      errors.dealName = "Deal name must be 50 characters or less";
     }
 
     // Department validation
@@ -172,6 +172,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
               type="text"
               placeholder="Enter deal or project name"
               value={formData.dealName}
+              maxLength={50}
               onChange={(e) => {
                 setFormData(prev => ({ ...prev, dealName: e.target.value }));
                 if (validationErrors.dealName) {
@@ -184,12 +185,17 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
               )}
               required
             />
-            {validationErrors.dealName && (
-              <div className="flex items-center gap-1 text-red-600 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.dealName}
+            <div className="flex justify-between items-center">
+              {validationErrors.dealName && (
+                <div className="flex items-center gap-1 text-red-600 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {validationErrors.dealName}
+                </div>
+              )}
+              <div className="text-xs text-slate-500 ml-auto">
+                {formData.dealName.length}/50 characters
               </div>
-            )}
+            </div>
           </div>
 
           {/* Department */}
