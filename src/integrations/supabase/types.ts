@@ -58,6 +58,7 @@ export type Database = {
           rated_by: string
           rating: number
           submission_id: string
+          task_date: string
           type: string
         }
         Insert: {
@@ -69,6 +70,7 @@ export type Database = {
           rated_by: string
           rating: number
           submission_id: string
+          task_date: string
           type: string
         }
         Update: {
@@ -80,6 +82,7 @@ export type Database = {
           rated_by?: string
           rating?: number
           submission_id?: string
+          task_date?: string
           type?: string
         }
         Relationships: [
