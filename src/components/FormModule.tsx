@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -136,9 +137,11 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
     }
   };
 
+  // Check if all required fields are filled AND there are no validation errors
+  const hasValidationErrors = Object.values(validationErrors).some(error => error !== "");
   const isFormValid = formData.dealName && formData.department && formData.type && 
                      formData.hoursWorked && formData.description && formData.taskDate &&
-                     Object.keys(validationErrors).length === 0;
+                     !hasValidationErrors;
 
   return (
     <Card className="max-w-2xl mx-auto shadow-lg border-0 bg-white">
