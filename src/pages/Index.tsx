@@ -131,7 +131,7 @@ const Index = () => {
 
       // Clear local data after successful submission
       setSubmittedData([]);
-      toast.success(`Successfully submitted ${dataToInsert.length} entries to database!`);
+      toast.success("Submitted Successfully");
 
       // Switch back to form view
       setCurrentModule('form');

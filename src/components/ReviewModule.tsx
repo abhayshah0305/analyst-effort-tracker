@@ -3,7 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Database, FileCheck, Clock, Calendar } from "lucide-react";
+import { ArrowLeft, FileCheck, Clock, Calendar } from "lucide-react";
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle, 
+  AlertDialogTrigger 
+} from "@/components/ui/alert-dialog";
 import { FormData } from "../pages/Index";
 
 interface ReviewModuleProps {
@@ -138,17 +149,33 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
               </Table>
             </div>
             
-            {/* Submit Button */}
+            {/* Submit Button with Confirmation Dialog */}
             <div className="p-4 sm:p-6 border-t border-slate-200">
               <div className="flex justify-center">
-                <Button 
-                  onClick={onFinalSubmit}
-                  size="lg"
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 sm:px-8 w-full sm:w-auto"
-                >
-                  <Database className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  Submit to Database
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      size="lg"
+                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 sm:px-8 w-full sm:w-auto"
+                    >
+                      Submit
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Confirm Submission</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to submit {data.length} entries? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={onFinalSubmit}>
+                        Yes, Submit
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </CardContent>
