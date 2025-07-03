@@ -233,17 +233,6 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
           </CardHeader>
         </Card>
 
-        {/* Debug Info Card */}
-        <Card className="shadow-lg border-0 bg-yellow-50 border-yellow-200">
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-yellow-800 mb-2">Debug Information</h3>
-            <p className="text-sm text-yellow-700">Total Submissions: {submissions.length}</p>
-            <p className="text-sm text-yellow-700">Total Ratings: {ratings.length}</p>
-            <p className="text-sm text-yellow-700">Unrated Submissions: {unratedSubmissions.length}</p>
-            <p className="text-sm text-yellow-700">Current User: {ratedBy}</p>
-          </CardContent>
-        </Card>
-
         {/* Pending Ratings or No Pending Message */}
         {unratedSubmissions.length > 0 ? (
           <Card className="shadow-lg border-0 bg-white">
@@ -270,7 +259,8 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {unratedSubmissions.map(submission => <TableRow key={submission.id} className="hover:bg-slate-50">
+                    {unratedSubmissions.map(submission => (
+                      <TableRow key={submission.id} className="hover:bg-slate-50">
                         <TableCell className="font-medium text-slate-900 text-xs sm:text-sm">
                           {formatAnalystName(submission.analyst_email)}
                         </TableCell>
@@ -302,14 +292,27 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Input type="number" min="1" max="10" className="w-20" placeholder="1-10" value={ratingInputs[submission.id] || ''} onChange={e => handleRatingInputChange(submission.id, e.target.value)} />
+                          <Input
+                            type="number"
+                            min="1"
+                            max="10"
+                            className="w-20"
+                            placeholder="1-10"
+                            value={ratingInputs[submission.id] || ''}
+                            onChange={e => handleRatingInputChange(submission.id, e.target.value)}
+                          />
                         </TableCell>
                         <TableCell>
-                          <Button onClick={() => handleSubmitRating(submission)} disabled={!ratingInputs[submission.id] || rateMutation.isPending} size="sm">
+                          <Button
+                            onClick={() => handleSubmitRating(submission)}
+                            disabled={!ratingInputs[submission.id] || rateMutation.isPending}
+                            size="sm"
+                          >
                             Submit
                           </Button>
                         </TableCell>
-                      </TableRow>)}
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
               </div>
