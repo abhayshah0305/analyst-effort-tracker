@@ -19,6 +19,7 @@ export type Database = {
           id: string
           rating: number | null
           submitted_at: string
+          task_date: string
           type: string
         }
         Insert: {
@@ -30,6 +31,7 @@ export type Database = {
           id?: string
           rating?: number | null
           submitted_at?: string
+          task_date?: string
           type: string
         }
         Update: {
@@ -41,6 +43,7 @@ export type Database = {
           id?: string
           rating?: number | null
           submitted_at?: string
+          task_date?: string
           type?: string
         }
         Relationships: []

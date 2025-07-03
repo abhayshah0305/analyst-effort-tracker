@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Database, FileCheck, Clock } from "lucide-react";
+import { ArrowLeft, Database, FileCheck, Clock, Calendar } from "lucide-react";
 import { FormData } from "../pages/Index";
 
 interface ReviewModuleProps {
@@ -94,9 +94,9 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
                     <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[120px]">Deal/Project</TableHead>
                     <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[100px]">Department</TableHead>
                     <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[80px]">Type</TableHead>
+                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[90px]">Task Date</TableHead>
                     <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[70px]">Hours</TableHead>
                     <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[150px] hidden sm:table-cell">Description</TableHead>
-                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[100px] hidden md:table-cell">Created</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -118,6 +118,12 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
                           {item.type}
                         </Badge>
                       </TableCell>
+                      <TableCell className="text-xs sm:text-sm text-slate-700">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-slate-500" />
+                          {new Date(item.taskDate).toLocaleDateString()}
+                        </div>
+                      </TableCell>
                       <TableCell className="font-medium text-slate-700 text-xs sm:text-sm">
                         {item.hoursWorked}h
                       </TableCell>
@@ -125,9 +131,6 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
                         <div className="truncate text-slate-600 text-xs sm:text-sm" title={item.description}>
                           {item.description}
                         </div>
-                      </TableCell>
-                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
-                        {new Date(item.submittedAt).toLocaleDateString()}
                       </TableCell>
                     </TableRow>
                   ))}

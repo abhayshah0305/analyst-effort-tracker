@@ -7,7 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Clock, Building, Tag } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { FileText, Clock, Building, Tag, CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { FormData } from "../pages/Index";
 
 interface FormModuleProps {
@@ -20,7 +24,8 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
     department: "",
     type: "",
     hoursWorked: "",
-    description: ""
+    description: "",
+    taskDate: ""
   });
 
   const departments = [
@@ -37,7 +42,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
     e.preventDefault();
     
     if (!formData.dealName || !formData.department || !formData.type || 
-        !formData.hoursWorked || !formData.description) {
+        !formData.hoursWorked || !formData.description || !formData.taskDate) {
       return;
     }
 
@@ -46,7 +51,8 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
       department: formData.department,
       type: formData.type,
       hoursWorked: parseFloat(formData.hoursWorked),
-      description: formData.description
+      description: formData.description,
+      taskDate: formData.taskDate
     });
 
     // Reset form
@@ -55,12 +61,13 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
       department: "",
       type: "",
       hoursWorked: "",
-      description: ""
+      description: "",
+      taskDate: ""
     });
   };
 
   const isFormValid = formData.dealName && formData.department && formData.type && 
-                     formData.hoursWorked && formData.description;
+                     formData.hoursWorked && formData.description && formData.taskDate;
 
   return (
     <Card className="max-w-2xl mx-auto shadow-lg border-0 bg-white">
@@ -140,6 +147,42 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                 <Label htmlFor="project" className="text-sm text-slate-700 cursor-pointer">Project</Label>
               </div>
             </RadioGroup>
+          </div>
+
+          {/* Task Date */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+              <CalendarIcon className="w-4 h-4" />
+              Task Date *
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full h-11 justify-start text-left font-normal border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                    !formData.taskDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.taskDate ? format(new Date(formData.taskDate), "PPP") : <span>Pick task date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={formData.taskDate ? new Date(formData.taskDate) : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      setFormData(prev => ({ ...prev, taskDate: format(date, "yyyy-MM-dd") }));
+                    }
+                  }}
+                  disabled={(date) => date > new Date() || date < new Date("2020-01-01")}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Hours Worked */}

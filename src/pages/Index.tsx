@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+
 export interface FormData {
   id: string;
   dealName: string;
@@ -14,8 +15,10 @@ export interface FormData {
   type: string;
   hoursWorked: number;
   description: string;
+  taskDate: string;
   submittedAt: string;
 }
+
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentModule, setCurrentModule] = useState<'form' | 'review' | 'admin'>('form');
@@ -112,7 +115,8 @@ const Index = () => {
         department: entry.department,
         type: entry.type,
         hours_worked: entry.hoursWorked,
-        description: entry.description
+        description: entry.description,
+        task_date: entry.taskDate
       }));
 
       // Insert all entries to database
