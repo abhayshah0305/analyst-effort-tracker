@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -185,17 +184,12 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
               )}
               required
             />
-            <div className="flex justify-between items-center">
-              {validationErrors.dealName && (
-                <div className="flex items-center gap-1 text-red-600 text-sm">
-                  <AlertCircle className="w-4 h-4" />
-                  {validationErrors.dealName}
-                </div>
-              )}
-              <div className="text-xs text-slate-500 ml-auto">
-                {formData.dealName.length}/50 characters
+            {validationErrors.dealName && (
+              <div className="flex items-center gap-1 text-red-600 text-sm">
+                <AlertCircle className="w-4 h-4" />
+                {validationErrors.dealName}
               </div>
-            </div>
+            )}
           </div>
 
           {/* Department */}
