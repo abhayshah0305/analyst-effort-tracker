@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,11 +9,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Calendar, Users, Calendar as CalendarIcon, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-
 interface AdminModuleProps {
   ratedBy: string;
 }
-
 interface AnalystSubmission {
   id: string;
   analyst_email: string;
@@ -27,7 +24,6 @@ interface AnalystSubmission {
   submitted_at: string;
   rating?: number;
 }
-
 interface LeadershipRating {
   id: string;
   submission_id: string;
@@ -40,11 +36,18 @@ interface LeadershipRating {
   rated_at: string;
   rated_by: string;
 }
-
-const AdminModule = ({ ratedBy }: AdminModuleProps) => {
+const AdminModule = ({
+  ratedBy
+}: AdminModuleProps) => {
   const queryClient = useQueryClient();
-  const [ratingInputs, setRatingInputs] = useState<{ [key: string]: string }>({});
-  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; submissionId: string; rating: number }>({
+  const [ratingInputs, setRatingInputs] = useState<{
+    [key: string]: string;
+  }>({});
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    submissionId: string;
+    rating: number;
+  }>({
     open: false,
     submissionId: '',
     rating: 0
@@ -53,21 +56,22 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
   // Helper function to format analyst name from email
   const formatAnalystName = (email: string) => {
     const username = email.split('@')[0];
-    return username
-      .split('.')
-      .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-      .join(' ');
+    return username.split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join(' ');
   };
 
   // Fetch all analyst submissions
-  const { data: submissions = [], isLoading: submissionsLoading } = useQuery({
+  const {
+    data: submissions = [],
+    isLoading: submissionsLoading
+  } = useQuery({
     queryKey: ['analyst-submissions'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('analyst_submissions')
-        .select('*')
-        .order('submitted_at', { ascending: false });
-      
+      const {
+        data,
+        error
+      } = await supabase.from('analyst_submissions').select('*').order('submitted_at', {
+        ascending: false
+      });
       if (error) {
         console.error('Error fetching submissions:', error);
         throw error;
@@ -77,14 +81,18 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
   });
 
   // Fetch leadership ratings
-  const { data: ratings = [], isLoading: ratingsLoading } = useQuery({
+  const {
+    data: ratings = [],
+    isLoading: ratingsLoading
+  } = useQuery({
     queryKey: ['leadership-ratings'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('leadership_ratings')
-        .select('*')
-        .order('rated_at', { ascending: false });
-      
+      const {
+        data,
+        error
+      } = await supabase.from('leadership_ratings').select('*').order('rated_at', {
+        ascending: false
+      });
       if (error) {
         console.error('Error fetching ratings:', error);
         throw error;
@@ -95,72 +103,78 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
 
   // Rate submission mutation
   const rateMutation = useMutation({
-    mutationFn: async ({ submissionId, rating, submission }: { 
-      submissionId: string; 
-      rating: number; 
+    mutationFn: async ({
+      submissionId,
+      rating,
+      submission
+    }: {
+      submissionId: string;
+      rating: number;
       submission: AnalystSubmission;
     }) => {
-      const { error } = await supabase
-        .from('leadership_ratings')
-        .insert([{
-          submission_id: submissionId,
-          rating: rating,
-          analyst_name: formatAnalystName(submission.analyst_email),
-          deal_name: submission.deal_name,
-          department: submission.department,
-          type: submission.type,
-          task_date: submission.task_date,
-          rated_by: ratedBy
-        }]);
-      
+      const {
+        error
+      } = await supabase.from('leadership_ratings').insert([{
+        submission_id: submissionId,
+        rating: rating,
+        analyst_name: formatAnalystName(submission.analyst_email),
+        deal_name: submission.deal_name,
+        department: submission.department,
+        type: submission.type,
+        task_date: submission.task_date,
+        rated_by: ratedBy
+      }]);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['leadership-ratings'] });
+      queryClient.invalidateQueries({
+        queryKey: ['leadership-ratings']
+      });
       toast.success("Rating submitted successfully!");
-      setConfirmDialog({ open: false, submissionId: '', rating: 0 });
+      setConfirmDialog({
+        open: false,
+        submissionId: '',
+        rating: 0
+      });
       setRatingInputs({});
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error submitting rating:', error);
       toast.error("Failed to submit rating");
     }
   });
-
   const handleRatingInputChange = (submissionId: string, value: string) => {
     setRatingInputs(prev => ({
       ...prev,
       [submissionId]: value
     }));
   };
-
   const handleSubmitRating = (submission: AnalystSubmission) => {
     const ratingValue = parseInt(ratingInputs[submission.id] || '0');
     if (ratingValue < 1 || ratingValue > 10) {
       toast.error("Rating must be between 1 and 10");
       return;
     }
-    
     setConfirmDialog({
       open: true,
       submissionId: submission.id,
       rating: ratingValue
     });
   };
-
   const confirmSubmitRating = () => {
     const submission = unratedSubmissions.find(s => s.id === confirmDialog.submissionId);
     if (submission) {
-      rateMutation.mutate({ 
-        submissionId: confirmDialog.submissionId, 
-        rating: confirmDialog.rating, 
-        submission 
+      rateMutation.mutate({
+        submissionId: confirmDialog.submissionId,
+        rating: confirmDialog.rating,
+        submission
       });
     }
   };
-
   const getDepartmentColor = (department: string) => {
-    const colors: { [key: string]: string } = {
+    const colors: {
+      [key: string]: string;
+    } = {
       "Technology": "bg-blue-100 text-blue-800",
       "AMP": "bg-green-100 text-green-800",
       "Sales/Fundraise": "bg-purple-100 text-purple-800",
@@ -171,29 +185,21 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
     };
     return colors[department] || "bg-gray-100 text-gray-800";
   };
-
   const getTypeColor = (type: string) => {
     return type === "Core" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800";
   };
 
   // Get submissions that haven't been rated yet
-  const unratedSubmissions = submissions.filter(submission => 
-    !ratings.some(rating => rating.submission_id === submission.id)
-  );
-
+  const unratedSubmissions = submissions.filter(submission => !ratings.some(rating => rating.submission_id === submission.id));
   if (submissionsLoading || ratingsLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
+    return <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-slate-600">Loading admin dashboard...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <>
+  return <>
       <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <Card className="shadow-lg border-0 bg-white">
@@ -215,8 +221,7 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
         </Card>
 
         {/* Pending Ratings or No Pending Message */}
-        {unratedSubmissions.length > 0 ? (
-          <Card className="shadow-lg border-0 bg-white">
+        {unratedSubmissions.length > 0 ? <Card className="shadow-lg border-0 bg-white">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-slate-800 flex items-center">
                 <Calendar className="w-5 h-5 mr-2 text-orange-600" />
@@ -240,8 +245,7 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {unratedSubmissions.map((submission) => (
-                      <TableRow key={submission.id} className="hover:bg-slate-50">
+                    {unratedSubmissions.map(submission => <TableRow key={submission.id} className="hover:bg-slate-50">
                         <TableCell className="font-medium text-slate-900 text-xs sm:text-sm">
                           {formatAnalystName(submission.analyst_email)}
                         </TableCell>
@@ -273,34 +277,19 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Input
-                            type="number"
-                            min="1"
-                            max="10"
-                            className="w-20"
-                            placeholder="1-10"
-                            value={ratingInputs[submission.id] || ''}
-                            onChange={(e) => handleRatingInputChange(submission.id, e.target.value)}
-                          />
+                          <Input type="number" min="1" max="10" className="w-20" placeholder="1-10" value={ratingInputs[submission.id] || ''} onChange={e => handleRatingInputChange(submission.id, e.target.value)} />
                         </TableCell>
                         <TableCell>
-                          <Button
-                            onClick={() => handleSubmitRating(submission)}
-                            disabled={!ratingInputs[submission.id] || rateMutation.isPending}
-                            size="sm"
-                          >
+                          <Button onClick={() => handleSubmitRating(submission)} disabled={!ratingInputs[submission.id] || rateMutation.isPending} size="sm">
                             Submit
                           </Button>
                         </TableCell>
-                      </TableRow>
-                    ))}
+                      </TableRow>)}
                   </TableBody>
                 </Table>
               </div>
             </CardContent>
-          </Card>
-        ) : (
-          <Card className="shadow-lg border-0 bg-white">
+          </Card> : <Card className="shadow-lg border-0 bg-white">
             <CardContent className="p-8">
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -309,17 +298,17 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
                 <h3 className="text-lg font-semibold text-slate-800 mb-2">
                   No Pending Ratings
                 </h3>
-                <p className="text-slate-600">
-                  All analyst submissions have been rated. Great job staying on top of things!
-                </p>
+                <p className="text-slate-600">All analyst submissions have been rated.</p>
               </div>
             </CardContent>
-          </Card>
-        )}
+          </Card>}
       </div>
 
       {/* Confirmation Dialog */}
-      <Dialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}>
+      <Dialog open={confirmDialog.open} onOpenChange={open => setConfirmDialog(prev => ({
+      ...prev,
+      open
+    }))}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Rating Submission</DialogTitle>
@@ -328,10 +317,11 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setConfirmDialog({ open: false, submissionId: '', rating: 0 })}
-            >
+            <Button variant="outline" onClick={() => setConfirmDialog({
+            open: false,
+            submissionId: '',
+            rating: 0
+          })}>
               Cancel
             </Button>
             <Button onClick={confirmSubmitRating} disabled={rateMutation.isPending}>
@@ -340,8 +330,6 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>;
 };
-
 export default AdminModule;
