@@ -22,7 +22,8 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
       "Sales/Fundraise": "bg-purple-100 text-purple-800",
       "Debrief": "bg-orange-100 text-orange-800",
       "Coverage": "bg-indigo-100 text-indigo-800",
-      "Asset Monitoring": "bg-red-100 text-red-800"
+      "Asset Monitoring": "bg-red-100 text-red-800",
+      "CRE": "bg-yellow-100 text-yellow-800"
     };
     return colors[department] || "bg-gray-100 text-gray-800";
   };
@@ -32,28 +33,29 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header Card */}
       <Card className="shadow-lg border-0 bg-white">
         <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
-                <FileCheck className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileCheck className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <div>
-                <CardTitle className="text-xl font-semibold text-slate-800">
+              <div className="min-w-0">
+                <CardTitle className="text-lg sm:text-xl font-semibold text-slate-800">
                   Review Entries
                 </CardTitle>
-                <CardDescription className="text-slate-600">
-                  Review your entries before submitting to database
+                <CardDescription className="text-sm sm:text-base text-slate-600">
+                  Review your entries before submitting
                 </CardDescription>
               </div>
             </div>
             <Button
               onClick={onBack}
               variant="outline"
-              className="border-slate-300 hover:bg-slate-50"
+              className="border-slate-300 hover:bg-slate-50 w-full sm:w-auto"
+              size="sm"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Form
@@ -62,20 +64,20 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
         </CardHeader>
         
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
               <div className="flex items-center space-x-2">
-                <FileCheck className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Total Entries</span>
+                <FileCheck className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                <span className="text-xs sm:text-sm font-medium text-blue-800">Total Entries</span>
               </div>
-              <p className="text-2xl font-bold text-blue-900">{data.length}</p>
+              <p className="text-xl sm:text-2xl font-bold text-blue-900">{data.length}</p>
             </div>
-            <div className="bg-green-50 p-4 rounded-lg">
+            <div className="bg-green-50 p-3 sm:p-4 rounded-lg">
               <div className="flex items-center space-x-2">
-                <Clock className="w-5 h-5 text-green-600" />
-                <span className="text-sm font-medium text-green-800">Total Hours</span>
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                <span className="text-xs sm:text-sm font-medium text-green-800">Total Hours</span>
               </div>
-              <p className="text-2xl font-bold text-green-900">{totalHours.toFixed(1)}</p>
+              <p className="text-xl sm:text-2xl font-bold text-green-900">{totalHours.toFixed(1)}</p>
             </div>
           </div>
         </CardContent>
@@ -89,40 +91,43 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50">
-                    <TableHead className="font-semibold text-slate-700">Deal/Project</TableHead>
-                    <TableHead className="font-semibold text-slate-700">Department</TableHead>
-                    <TableHead className="font-semibold text-slate-700">Type</TableHead>
-                    <TableHead className="font-semibold text-slate-700">Hours</TableHead>
-                    <TableHead className="font-semibold text-slate-700">Description</TableHead>
-                    <TableHead className="font-semibold text-slate-700">Created</TableHead>
+                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[120px]">Deal/Project</TableHead>
+                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[100px]">Department</TableHead>
+                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[80px]">Type</TableHead>
+                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[70px]">Hours</TableHead>
+                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[150px] hidden sm:table-cell">Description</TableHead>
+                    <TableHead className="font-semibold text-slate-700 text-xs sm:text-sm min-w-[100px] hidden md:table-cell">Created</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.map((item) => (
                     <TableRow key={item.id} className="hover:bg-slate-50">
-                      <TableCell className="font-medium text-slate-900">
-                        {item.dealName}
+                      <TableCell className="font-medium text-slate-900 text-xs sm:text-sm">
+                        <div className="max-w-[120px] truncate" title={item.dealName}>
+                          {item.dealName}
+                        </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={getDepartmentColor(item.department)}>
-                          {item.department}
+                        <Badge className={`${getDepartmentColor(item.department)} text-xs`}>
+                          <span className="hidden sm:inline">{item.department}</span>
+                          <span className="sm:hidden">{item.department.substring(0, 3)}</span>
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge className={getTypeColor(item.type)}>
+                        <Badge className={`${getTypeColor(item.type)} text-xs`}>
                           {item.type}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-medium text-slate-700">
+                      <TableCell className="font-medium text-slate-700 text-xs sm:text-sm">
                         {item.hoursWorked}h
                       </TableCell>
-                      <TableCell className="max-w-xs">
-                        <div className="truncate text-slate-600" title={item.description}>
+                      <TableCell className="max-w-xs hidden sm:table-cell">
+                        <div className="truncate text-slate-600 text-xs sm:text-sm" title={item.description}>
                           {item.description}
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm text-slate-500">
-                        {new Date(item.submittedAt).toLocaleString()}
+                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
+                        {new Date(item.submittedAt).toLocaleDateString()}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -131,14 +136,14 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
             </div>
             
             {/* Submit Button */}
-            <div className="p-6 border-t border-slate-200">
+            <div className="p-4 sm:p-6 border-t border-slate-200">
               <div className="flex justify-center">
                 <Button 
                   onClick={onFinalSubmit}
                   size="lg"
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8"
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 sm:px-8 w-full sm:w-auto"
                 >
-                  <Database className="w-5 h-5 mr-2" />
+                  <Database className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   Submit to Database
                 </Button>
               </div>
@@ -147,11 +152,11 @@ const ReviewModule = ({ data, onFinalSubmit, onBack }: ReviewModuleProps) => {
         </Card>
       ) : (
         <Card className="shadow-lg border-0 bg-white">
-          <CardContent className="text-center py-12">
-            <FileCheck className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-900 mb-2">No entries yet</h3>
-            <p className="text-slate-600 mb-4">Start by adding your first entry using the form.</p>
-            <Button onClick={onBack} className="bg-blue-600 hover:bg-blue-700">
+          <CardContent className="text-center py-8 sm:py-12 px-4">
+            <FileCheck className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-slate-900 mb-2">No entries yet</h3>
+            <p className="text-sm sm:text-base text-slate-600 mb-4">Start by adding your first entry using the form.</p>
+            <Button onClick={onBack} className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
               Add First Entry
             </Button>
           </CardContent>

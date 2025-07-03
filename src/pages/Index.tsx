@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import AuthModule from "../components/AuthModule";
 import FormModule from "../components/FormModule";
@@ -159,24 +158,28 @@ const Index = () => {
       {/* Header */}
       <header className="bg-white shadow-lg border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 flex items-center justify-center">
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center flex-shrink-0">
                 <img 
                   src="/lovable-uploads/dd6990e4-a19f-465b-b933-fcde114afb5e.png" 
                   alt="Integrow Logo" 
-                  className="w-10 h-10 object-contain" 
+                  className="w-8 h-8 sm:w-10 sm:h-10 object-contain" 
                 />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-slate-800">Integrow Asset Management</h1>
-                <p className="text-sm text-slate-600">Analyst Effort Tracking System</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-800 truncate">
+                  Integrow Asset Management
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-600 hidden sm:block">
+                  Analyst Effort Tracking System
+                </p>
               </div>
             </div>
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors">
-                <span>Hi {getFirstName(loggedInUser)}!</span>
-                <ChevronDown className="h-4 w-4" />
+              <DropdownMenuTrigger className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors flex-shrink-0">
+                <span className="truncate max-w-24 sm:max-w-none">Hi {getFirstName(loggedInUser)}!</span>
+                <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
@@ -192,10 +195,10 @@ const Index = () => {
       {/* Navigation */}
       <nav className="bg-white shadow-sm border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
+          <div className="flex space-x-2 sm:space-x-8 overflow-x-auto">
             <button
               onClick={() => setCurrentModule('form')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-3 sm:py-4 px-2 sm:px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 currentModule === 'form'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -205,24 +208,26 @@ const Index = () => {
             </button>
             <button
               onClick={() => setCurrentModule('review')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-3 sm:py-4 px-2 sm:px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 currentModule === 'review'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
-              Review & Submit ({submittedData.length})
+              <span className="hidden sm:inline">Review & Submit</span>
+              <span className="sm:hidden">Review</span> ({submittedData.length})
             </button>
             {isAdmin && (
               <button
                 onClick={() => setCurrentModule('admin')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`py-3 sm:py-4 px-2 sm:px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
                   currentModule === 'admin'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }`}
               >
-                Admin Dashboard
+                <span className="hidden sm:inline">Admin Dashboard</span>
+                <span className="sm:hidden">Admin</span>
               </button>
             )}
           </div>
@@ -230,7 +235,7 @@ const Index = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {currentModule === 'form' ? (
           <FormModule onSubmit={handleFormSubmit} />
         ) : currentModule === 'review' ? (
