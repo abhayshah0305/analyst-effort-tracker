@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Calendar, Users, Calendar as CalendarIcon } from "lucide-react";
+import { Calendar, Users, Calendar as CalendarIcon, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -213,8 +214,8 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
           </CardHeader>
         </Card>
 
-        {/* Pending Ratings */}
-        {unratedSubmissions.length > 0 && (
+        {/* Pending Ratings or No Pending Message */}
+        {unratedSubmissions.length > 0 ? (
           <Card className="shadow-lg border-0 bg-white">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-slate-800 flex items-center">
@@ -295,6 +296,22 @@ const AdminModule = ({ ratedBy }: AdminModuleProps) => {
                     ))}
                   </TableBody>
                 </Table>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="shadow-lg border-0 bg-white">
+            <CardContent className="p-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-800 mb-2">
+                  No Pending Ratings
+                </h3>
+                <p className="text-slate-600">
+                  All analyst submissions have been rated. Great job staying on top of things!
+                </p>
               </div>
             </CardContent>
           </Card>
