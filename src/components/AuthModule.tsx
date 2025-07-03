@@ -51,7 +51,7 @@ const AuthModule = ({ onLogin }: AuthModuleProps) => {
         <CardHeader className="space-y-1 text-center pb-8">
           <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
             <img 
-              src="/lovable-uploads/dd6990e4-a19f-465b-b933-fcde114afb5e.png" 
+              src="/uploads/dd6990e4-a19f-465b-b933-fcde114afb5e.png" 
               alt="Integrow Logo" 
               className="w-16 h-16 object-contain" 
             />

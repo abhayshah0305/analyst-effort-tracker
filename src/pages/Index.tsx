@@ -176,7 +176,7 @@ const Index = () => {
           <div className="flex justify-between items-center h-16 sm:h-20">
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 pr-2">
               <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 flex items-center justify-center flex-shrink-0">
-                <img src="/lovable-uploads/dd6990e4-a19f-465b-b933-fcde114afb5e.png" alt="Integrow Logo" className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain" />
+                <img src="/uploads/dd6990e4-a19f-465b-b933-fcde114afb5e.png" alt="Integrow Logo" className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain" />
               </div>
               <div className="min-w-0 flex-1">
                 <h1 className="text-sm sm:text-lg lg:text-xl xl:text-2xl font-bold text-slate-800 leading-tight">
