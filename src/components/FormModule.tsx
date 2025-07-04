@@ -275,11 +275,11 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                 </div>
               )}
               
-              {/* Single Row Layout - All fields on one row */}
-              <div className="grid grid-cols-12 gap-3">
+              {/* Single Row Layout - All fields perfectly aligned */}
+              <div className="flex items-end gap-4">
                 {/* Deal/Project Name */}
-                <div className="col-span-2 space-y-1">
-                  <Label htmlFor={`dealName-${index}`} className="text-xs font-medium text-slate-700 flex items-center gap-1">
+                <div className="flex-1 min-w-0 space-y-2">
+                  <Label htmlFor={`dealName-${index}`} className="text-sm font-medium text-slate-700 flex items-center gap-1">
                     <Building className="w-3 h-3" />
                     Deal Name *
                   </Label>
@@ -291,7 +291,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                     maxLength={50}
                     onChange={(e) => updateEntry(index, 'dealName', e.target.value)}
                     className={cn(
-                      "h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                      "h-10 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                       validationErrors[index]?.dealName && "border-red-500 focus:border-red-500 focus:ring-red-500"
                     )}
                     required
@@ -305,8 +305,8 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                 </div>
 
                 {/* Department */}
-                <div className="col-span-2 space-y-1">
-                  <Label htmlFor={`department-${index}`} className="text-xs font-medium text-slate-700 flex items-center gap-1">
+                <div className="w-40 space-y-2">
+                  <Label htmlFor={`department-${index}`} className="text-sm font-medium text-slate-700 flex items-center gap-1">
                     <Tag className="w-3 h-3" />
                     Department *
                   </Label>
@@ -316,7 +316,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                     required
                   >
                     <SelectTrigger className={cn(
-                      "h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                      "h-10 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                       validationErrors[index]?.department && "border-red-500 focus:border-red-500 focus:ring-red-500"
                     )}>
                       <SelectValue placeholder="Dept" />
@@ -338,15 +338,15 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                 </div>
 
                 {/* Type */}
-                <div className="col-span-1 space-y-1">
-                  <Label className="text-xs font-medium text-slate-700">Type *</Label>
+                <div className="w-28 space-y-2">
+                  <Label className="text-sm font-medium text-slate-700">Type *</Label>
                   <Select 
                     value={entry.type} 
                     onValueChange={(value) => updateEntry(index, 'type', value)}
                     required
                   >
                     <SelectTrigger className={cn(
-                      "h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                      "h-10 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                       validationErrors[index]?.type && "border-red-500 focus:border-red-500 focus:ring-red-500"
                     )}>
                       <SelectValue placeholder="Type" />
@@ -368,8 +368,8 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                 </div>
 
                 {/* Task Date */}
-                <div className="col-span-2 space-y-1">
-                  <Label className="text-xs font-medium text-slate-700 flex items-center gap-1">
+                <div className="w-40 space-y-2">
+                  <Label className="text-sm font-medium text-slate-700 flex items-center gap-1">
                     <CalendarIcon className="w-3 h-3" />
                     Date *
                   </Label>
@@ -378,7 +378,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full h-9 justify-start text-left font-normal text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                          "w-full h-10 justify-start text-left font-normal text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                           !entry.taskDate && "text-muted-foreground",
                           validationErrors[index]?.taskDate && "border-red-500 focus:border-red-500 focus:ring-red-500"
                         )}
@@ -411,8 +411,8 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                 </div>
 
                 {/* Hours Worked */}
-                <div className="col-span-1 space-y-1">
-                  <Label htmlFor={`hoursWorked-${index}`} className="text-xs font-medium text-slate-700 flex items-center gap-1">
+                <div className="w-24 space-y-2">
+                  <Label htmlFor={`hoursWorked-${index}`} className="text-sm font-medium text-slate-700 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     Hours *
                   </Label>
@@ -426,7 +426,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                     value={entry.hoursWorked}
                     onChange={(e) => updateEntry(index, 'hoursWorked', e.target.value)}
                     className={cn(
-                      "h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                      "h-10 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                       validationErrors[index]?.hoursWorked && "border-red-500 focus:border-red-500 focus:ring-red-500"
                     )}
                     required
@@ -439,9 +439,9 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                   )}
                 </div>
 
-                {/* Description - smaller and on same row */}
-                <div className="col-span-4 space-y-1">
-                  <Label htmlFor={`description-${index}`} className="text-xs font-medium text-slate-700">
+                {/* Description */}
+                <div className="flex-1 min-w-0 space-y-2">
+                  <Label htmlFor={`description-${index}`} className="text-sm font-medium text-slate-700">
                     Description
                   </Label>
                   <Input
@@ -452,7 +452,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                     onChange={(e) => updateEntry(index, 'description', e.target.value)}
                     maxLength={200}
                     className={cn(
-                      "h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                      "h-10 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                       validationErrors[index]?.description && "border-red-500 focus:border-red-500 focus:ring-red-500"
                     )}
                   />
