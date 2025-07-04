@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -41,6 +40,11 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
     "Residental",
     "Equity Enhancer Product",
     "Co-Investments"
+  ];
+
+  const types = [
+    { value: "Core", label: "Core" },
+    { value: "Project", label: "Project" }
   ];
 
   const validateForm = () => {
@@ -144,7 +148,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                      !hasValidationErrors;
 
   return (
-    <Card className="max-w-6xl mx-auto shadow-lg border-0 bg-white">
+    <Card className="max-w-full mx-auto shadow-lg border-0 bg-white">
       <CardHeader className="pb-6">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -163,18 +167,18 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
       
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Row 1: Deal Name and Department */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Single Row Layout */}
+          <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
             {/* Deal/Project Name */}
             <div className="space-y-2">
               <Label htmlFor="dealName" className="text-sm font-medium text-slate-700 flex items-center gap-2">
                 <Building className="w-4 h-4" />
-                Deal Name / Project Name *
+                Deal Name *
               </Label>
               <Input
                 id="dealName"
                 type="text"
-                placeholder="Enter deal or project name"
+                placeholder="Enter deal name"
                 value={formData.dealName}
                 maxLength={50}
                 onChange={(e) => {
@@ -217,9 +221,9 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                   "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                   validationErrors.department && "border-red-500 focus:border-red-500 focus:ring-red-500"
                 )}>
-                  <SelectValue placeholder="Select department" />
+                  <SelectValue placeholder="Select dept" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border border-slate-200 shadow-lg">
+                <SelectContent className="bg-white border border-slate-200 shadow-lg z-50">
                   {departments.map((dept) => (
                     <SelectItem key={dept} value={dept} className="hover:bg-slate-50">
                       {dept}
@@ -234,32 +238,34 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Row 2: Type, Task Date, and Hours */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Type */}
-            <div className="space-y-3">
+            {/* Type as Dropdown */}
+            <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">Type *</Label>
-              <RadioGroup
-                value={formData.type}
+              <Select 
+                value={formData.type} 
                 onValueChange={(value) => {
                   setFormData(prev => ({ ...prev, type: value }));
                   if (validationErrors.type) {
                     setValidationErrors(prev => ({ ...prev, type: '' }));
                   }
                 }}
-                className="flex space-x-6"
+                required
               >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Core" id="core" className="border-slate-300" />
-                  <Label htmlFor="core" className="text-sm text-slate-700 cursor-pointer">Core</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Project" id="project" className="border-slate-300" />
-                  <Label htmlFor="project" className="text-sm text-slate-700 cursor-pointer">Project</Label>
-                </div>
-              </RadioGroup>
+                <SelectTrigger className={cn(
+                  "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                  validationErrors.type && "border-red-500 focus:border-red-500 focus:ring-red-500"
+                )}>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-slate-200 shadow-lg z-50">
+                  {types.map((type) => (
+                    <SelectItem key={type.value} value={type.value} className="hover:bg-slate-50">
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {validationErrors.type && (
                 <div className="flex items-center gap-1 text-red-600 text-sm">
                   <AlertCircle className="w-4 h-4" />
@@ -272,7 +278,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
                 <CalendarIcon className="w-4 h-4" />
-                Task Date *
+                Date *
               </Label>
               <Popover>
                 <PopoverTrigger asChild>
@@ -285,10 +291,10 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.taskDate ? format(new Date(formData.taskDate), "PPP") : <span>Pick task date</span>}
+                    {formData.taskDate ? format(new Date(formData.taskDate), "MMM dd") : <span>Pick date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 z-50" align="start">
                   <Calendar
                     mode="single"
                     selected={formData.taskDate ? new Date(formData.taskDate) : undefined}
@@ -318,7 +324,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
             <div className="space-y-2">
               <Label htmlFor="hoursWorked" className="text-sm font-medium text-slate-700 flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                Hours Worked *
+                Hours *
               </Label>
               <Input
                 id="hoursWorked"
@@ -326,7 +332,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                 step="0.5"
                 min="0"
                 max="200"
-                placeholder="Enter hours worked"
+                placeholder="Hours"
                 value={formData.hoursWorked}
                 onChange={(e) => {
                   setFormData(prev => ({ ...prev, hoursWorked: e.target.value }));
@@ -349,7 +355,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
             </div>
           </div>
 
-          {/* Row 3: Description (full width) */}
+          {/* Description (full width) */}
           <div className="space-y-2">
             <Label htmlFor="description" className="text-sm font-medium text-slate-700">
               Description *
