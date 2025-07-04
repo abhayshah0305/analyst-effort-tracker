@@ -256,7 +256,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {entries.map((entry, index) => (
-            <div key={index} className="border border-slate-200 rounded-lg p-4 space-y-4 relative">
+            <div key={index} className="border border-slate-200 rounded-lg p-4 space-y-3 relative">
               {entries.length > 1 && (
                 <Button
                   type="button"
@@ -275,39 +275,39 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                 </div>
               )}
               
-              {/* Single Row Layout */}
-              <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
+              {/* Single Row Layout - All fields on one row */}
+              <div className="grid grid-cols-12 gap-3">
                 {/* Deal/Project Name */}
-                <div className="space-y-2">
-                  <Label htmlFor={`dealName-${index}`} className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                    <Building className="w-4 h-4" />
+                <div className="col-span-2 space-y-1">
+                  <Label htmlFor={`dealName-${index}`} className="text-xs font-medium text-slate-700 flex items-center gap-1">
+                    <Building className="w-3 h-3" />
                     Deal Name *
                   </Label>
                   <Input
                     id={`dealName-${index}`}
                     type="text"
-                    placeholder="Enter deal name"
+                    placeholder="Deal name"
                     value={entry.dealName}
                     maxLength={50}
                     onChange={(e) => updateEntry(index, 'dealName', e.target.value)}
                     className={cn(
-                      "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                      "h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                       validationErrors[index]?.dealName && "border-red-500 focus:border-red-500 focus:ring-red-500"
                     )}
                     required
                   />
                   {validationErrors[index]?.dealName && (
-                    <div className="flex items-center gap-1 text-red-600 text-sm">
-                      <AlertCircle className="w-4 h-4" />
+                    <div className="flex items-center gap-1 text-red-600 text-xs">
+                      <AlertCircle className="w-3 h-3" />
                       {validationErrors[index].dealName}
                     </div>
                   )}
                 </div>
 
                 {/* Department */}
-                <div className="space-y-2">
-                  <Label htmlFor={`department-${index}`} className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                    <Tag className="w-4 h-4" />
+                <div className="col-span-2 space-y-1">
+                  <Label htmlFor={`department-${index}`} className="text-xs font-medium text-slate-700 flex items-center gap-1">
+                    <Tag className="w-3 h-3" />
                     Department *
                   </Label>
                   <Select 
@@ -316,10 +316,10 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                     required
                   >
                     <SelectTrigger className={cn(
-                      "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                      "h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                       validationErrors[index]?.department && "border-red-500 focus:border-red-500 focus:ring-red-500"
                     )}>
-                      <SelectValue placeholder="Select dept" />
+                      <SelectValue placeholder="Dept" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-slate-200 shadow-lg z-50">
                       {departments.map((dept) => (
@@ -330,26 +330,26 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                     </SelectContent>
                   </Select>
                   {validationErrors[index]?.department && (
-                    <div className="flex items-center gap-1 text-red-600 text-sm">
-                      <AlertCircle className="w-4 h-4" />
+                    <div className="flex items-center gap-1 text-red-600 text-xs">
+                      <AlertCircle className="w-3 h-3" />
                       {validationErrors[index].department}
                     </div>
                   )}
                 </div>
 
-                {/* Type as Dropdown */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-slate-700">Type *</Label>
+                {/* Type */}
+                <div className="col-span-1 space-y-1">
+                  <Label className="text-xs font-medium text-slate-700">Type *</Label>
                   <Select 
                     value={entry.type} 
                     onValueChange={(value) => updateEntry(index, 'type', value)}
                     required
                   >
                     <SelectTrigger className={cn(
-                      "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                      "h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                       validationErrors[index]?.type && "border-red-500 focus:border-red-500 focus:ring-red-500"
                     )}>
-                      <SelectValue placeholder="Select type" />
+                      <SelectValue placeholder="Type" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-slate-200 shadow-lg z-50">
                       {types.map((type) => (
@@ -360,17 +360,17 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                     </SelectContent>
                   </Select>
                   {validationErrors[index]?.type && (
-                    <div className="flex items-center gap-1 text-red-600 text-sm">
-                      <AlertCircle className="w-4 h-4" />
+                    <div className="flex items-center gap-1 text-red-600 text-xs">
+                      <AlertCircle className="w-3 h-3" />
                       {validationErrors[index].type}
                     </div>
                   )}
                 </div>
 
                 {/* Task Date */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                    <CalendarIcon className="w-4 h-4" />
+                <div className="col-span-2 space-y-1">
+                  <Label className="text-xs font-medium text-slate-700 flex items-center gap-1">
+                    <CalendarIcon className="w-3 h-3" />
                     Date *
                   </Label>
                   <Popover>
@@ -378,13 +378,13 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full h-11 justify-start text-left font-normal border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                          "w-full h-9 justify-start text-left font-normal text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                           !entry.taskDate && "text-muted-foreground",
                           validationErrors[index]?.taskDate && "border-red-500 focus:border-red-500 focus:ring-red-500"
                         )}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {entry.taskDate ? format(new Date(entry.taskDate), "MMM dd") : <span>Pick date</span>}
+                        <CalendarIcon className="mr-2 h-3 w-3" />
+                        {entry.taskDate ? format(new Date(entry.taskDate), "MMM dd") : <span>Date</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0 z-50" align="start">
@@ -403,17 +403,17 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                     </PopoverContent>
                   </Popover>
                   {validationErrors[index]?.taskDate && (
-                    <div className="flex items-center gap-1 text-red-600 text-sm">
-                      <AlertCircle className="w-4 h-4" />
+                    <div className="flex items-center gap-1 text-red-600 text-xs">
+                      <AlertCircle className="w-3 h-3" />
                       {validationErrors[index].taskDate}
                     </div>
                   )}
                 </div>
 
                 {/* Hours Worked */}
-                <div className="space-y-2">
-                  <Label htmlFor={`hoursWorked-${index}`} className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
+                <div className="col-span-1 space-y-1">
+                  <Label htmlFor={`hoursWorked-${index}`} className="text-xs font-medium text-slate-700 flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
                     Hours *
                   </Label>
                   <Input
@@ -422,48 +422,50 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                     step="0.5"
                     min="0"
                     max="200"
-                    placeholder="Hours"
+                    placeholder="Hrs"
                     value={entry.hoursWorked}
                     onChange={(e) => updateEntry(index, 'hoursWorked', e.target.value)}
                     className={cn(
-                      "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                      "h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
                       validationErrors[index]?.hoursWorked && "border-red-500 focus:border-red-500 focus:ring-red-500"
                     )}
                     required
                   />
                   {validationErrors[index]?.hoursWorked && (
-                    <div className="flex items-center gap-1 text-red-600 text-sm">
-                      <AlertCircle className="w-4 h-4" />
+                    <div className="flex items-center gap-1 text-red-600 text-xs">
+                      <AlertCircle className="w-3 h-3" />
                       {validationErrors[index].hoursWorked}
                     </div>
                   )}
                 </div>
-              </div>
 
-              {/* Description (full width, now optional) */}
-              <div className="space-y-2">
-                <Label htmlFor={`description-${index}`} className="text-sm font-medium text-slate-700">
-                  Description
-                </Label>
-                <Textarea
-                  id={`description-${index}`}
-                  placeholder="Provide a detailed description of the work performed (optional)..."
-                  value={entry.description}
-                  onChange={(e) => updateEntry(index, 'description', e.target.value)}
-                  className={cn(
-                    "min-h-[120px] border-slate-300 focus:border-blue-500 focus:ring-blue-500 resize-none",
-                    validationErrors[index]?.description && "border-red-500 focus:border-red-500 focus:ring-red-500"
-                  )}
-                />
-                <div className="flex justify-between items-center">
-                  {validationErrors[index]?.description && (
-                    <div className="flex items-center gap-1 text-red-600 text-sm">
-                      <AlertCircle className="w-4 h-4" />
-                      {validationErrors[index].description}
+                {/* Description - smaller and on same row */}
+                <div className="col-span-4 space-y-1">
+                  <Label htmlFor={`description-${index}`} className="text-xs font-medium text-slate-700">
+                    Description
+                  </Label>
+                  <Input
+                    id={`description-${index}`}
+                    type="text"
+                    placeholder="Brief description (optional)"
+                    value={entry.description}
+                    onChange={(e) => updateEntry(index, 'description', e.target.value)}
+                    maxLength={200}
+                    className={cn(
+                      "h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                      validationErrors[index]?.description && "border-red-500 focus:border-red-500 focus:ring-red-500"
+                    )}
+                  />
+                  <div className="flex justify-between items-center">
+                    {validationErrors[index]?.description && (
+                      <div className="flex items-center gap-1 text-red-600 text-xs">
+                        <AlertCircle className="w-3 h-3" />
+                        {validationErrors[index].description}
+                      </div>
+                    )}
+                    <div className="text-xs text-slate-500 ml-auto">
+                      {entry.description.length}/200
                     </div>
-                  )}
-                  <div className="text-xs text-slate-500 ml-auto">
-                    {entry.description.length}/1000 characters
                   </div>
                 </div>
               </div>
