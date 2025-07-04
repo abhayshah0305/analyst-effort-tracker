@@ -144,7 +144,7 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
                      !hasValidationErrors;
 
   return (
-    <Card className="max-w-2xl mx-auto shadow-lg border-0 bg-white">
+    <Card className="max-w-6xl mx-auto shadow-lg border-0 bg-white">
       <CardHeader className="pb-6">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -163,187 +163,193 @@ const FormModule = ({ onSubmit }: FormModuleProps) => {
       
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Deal/Project Name */}
-          <div className="space-y-2">
-            <Label htmlFor="dealName" className="text-sm font-medium text-slate-700 flex items-center gap-2">
-              <Building className="w-4 h-4" />
-              Deal Name / Project Name *
-            </Label>
-            <Input
-              id="dealName"
-              type="text"
-              placeholder="Enter deal or project name"
-              value={formData.dealName}
-              maxLength={50}
-              onChange={(e) => {
-                setFormData(prev => ({ ...prev, dealName: e.target.value }));
-                if (validationErrors.dealName) {
-                  setValidationErrors(prev => ({ ...prev, dealName: '' }));
-                }
-              }}
-              className={cn(
-                "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
-                validationErrors.dealName && "border-red-500 focus:border-red-500 focus:ring-red-500"
+          {/* Row 1: Deal Name and Department */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Deal/Project Name */}
+            <div className="space-y-2">
+              <Label htmlFor="dealName" className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                <Building className="w-4 h-4" />
+                Deal Name / Project Name *
+              </Label>
+              <Input
+                id="dealName"
+                type="text"
+                placeholder="Enter deal or project name"
+                value={formData.dealName}
+                maxLength={50}
+                onChange={(e) => {
+                  setFormData(prev => ({ ...prev, dealName: e.target.value }));
+                  if (validationErrors.dealName) {
+                    setValidationErrors(prev => ({ ...prev, dealName: '' }));
+                  }
+                }}
+                className={cn(
+                  "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                  validationErrors.dealName && "border-red-500 focus:border-red-500 focus:ring-red-500"
+                )}
+                required
+              />
+              {validationErrors.dealName && (
+                <div className="flex items-center gap-1 text-red-600 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {validationErrors.dealName}
+                </div>
               )}
-              required
-            />
-            {validationErrors.dealName && (
-              <div className="flex items-center gap-1 text-red-600 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.dealName}
-              </div>
-            )}
+            </div>
+
+            {/* Department */}
+            <div className="space-y-2">
+              <Label htmlFor="department" className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                <Tag className="w-4 h-4" />
+                Department *
+              </Label>
+              <Select 
+                value={formData.department} 
+                onValueChange={(value) => {
+                  setFormData(prev => ({ ...prev, department: value }));
+                  if (validationErrors.department) {
+                    setValidationErrors(prev => ({ ...prev, department: '' }));
+                  }
+                }}
+                required
+              >
+                <SelectTrigger className={cn(
+                  "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                  validationErrors.department && "border-red-500 focus:border-red-500 focus:ring-red-500"
+                )}>
+                  <SelectValue placeholder="Select department" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-slate-200 shadow-lg">
+                  {departments.map((dept) => (
+                    <SelectItem key={dept} value={dept} className="hover:bg-slate-50">
+                      {dept}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {validationErrors.department && (
+                <div className="flex items-center gap-1 text-red-600 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {validationErrors.department}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Department */}
-          <div className="space-y-2">
-            <Label htmlFor="department" className="text-sm font-medium text-slate-700 flex items-center gap-2">
-              <Tag className="w-4 h-4" />
-              Department *
-            </Label>
-            <Select 
-              value={formData.department} 
-              onValueChange={(value) => {
-                setFormData(prev => ({ ...prev, department: value }));
-                if (validationErrors.department) {
-                  setValidationErrors(prev => ({ ...prev, department: '' }));
-                }
-              }}
-              required
-            >
-              <SelectTrigger className={cn(
-                "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
-                validationErrors.department && "border-red-500 focus:border-red-500 focus:ring-red-500"
-              )}>
-                <SelectValue placeholder="Select department" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 shadow-lg">
-                {departments.map((dept) => (
-                  <SelectItem key={dept} value={dept} className="hover:bg-slate-50">
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {validationErrors.department && (
-              <div className="flex items-center gap-1 text-red-600 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.department}
-              </div>
-            )}
-          </div>
+          {/* Row 2: Type, Task Date, and Hours */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Type */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium text-slate-700">Type *</Label>
+              <RadioGroup
+                value={formData.type}
+                onValueChange={(value) => {
+                  setFormData(prev => ({ ...prev, type: value }));
+                  if (validationErrors.type) {
+                    setValidationErrors(prev => ({ ...prev, type: '' }));
+                  }
+                }}
+                className="flex space-x-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Core" id="core" className="border-slate-300" />
+                  <Label htmlFor="core" className="text-sm text-slate-700 cursor-pointer">Core</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Project" id="project" className="border-slate-300" />
+                  <Label htmlFor="project" className="text-sm text-slate-700 cursor-pointer">Project</Label>
+                </div>
+              </RadioGroup>
+              {validationErrors.type && (
+                <div className="flex items-center gap-1 text-red-600 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {validationErrors.type}
+                </div>
+              )}
+            </div>
 
-          {/* Type */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium text-slate-700">Type *</Label>
-            <RadioGroup
-              value={formData.type}
-              onValueChange={(value) => {
-                setFormData(prev => ({ ...prev, type: value }));
-                if (validationErrors.type) {
-                  setValidationErrors(prev => ({ ...prev, type: '' }));
-                }
-              }}
-              className="flex space-x-6"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Core" id="core" className="border-slate-300" />
-                <Label htmlFor="core" className="text-sm text-slate-700 cursor-pointer">Core</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Project" id="project" className="border-slate-300" />
-                <Label htmlFor="project" className="text-sm text-slate-700 cursor-pointer">Project</Label>
-              </div>
-            </RadioGroup>
-            {validationErrors.type && (
-              <div className="flex items-center gap-1 text-red-600 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.type}
-              </div>
-            )}
-          </div>
-
-          {/* Task Date */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4" />
-              Task Date *
-            </Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full h-11 justify-start text-left font-normal border-slate-300 focus:border-blue-500 focus:ring-blue-500",
-                    !formData.taskDate && "text-muted-foreground",
-                    validationErrors.taskDate && "border-red-500 focus:border-red-500 focus:ring-red-500"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formData.taskDate ? format(new Date(formData.taskDate), "PPP") : <span>Pick task date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={formData.taskDate ? new Date(formData.taskDate) : undefined}
-                  onSelect={(date) => {
-                    if (date) {
-                      setFormData(prev => ({ ...prev, taskDate: format(date, "yyyy-MM-dd") }));
-                      if (validationErrors.taskDate) {
-                        setValidationErrors(prev => ({ ...prev, taskDate: '' }));
+            {/* Task Date */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                <CalendarIcon className="w-4 h-4" />
+                Task Date *
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full h-11 justify-start text-left font-normal border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                      !formData.taskDate && "text-muted-foreground",
+                      validationErrors.taskDate && "border-red-500 focus:border-red-500 focus:ring-red-500"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.taskDate ? format(new Date(formData.taskDate), "PPP") : <span>Pick task date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={formData.taskDate ? new Date(formData.taskDate) : undefined}
+                    onSelect={(date) => {
+                      if (date) {
+                        setFormData(prev => ({ ...prev, taskDate: format(date, "yyyy-MM-dd") }));
+                        if (validationErrors.taskDate) {
+                          setValidationErrors(prev => ({ ...prev, taskDate: '' }));
+                        }
                       }
-                    }
-                  }}
-                  disabled={(date) => date > new Date() || date < new Date("2020-01-01")}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-            {validationErrors.taskDate && (
-              <div className="flex items-center gap-1 text-red-600 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.taskDate}
-              </div>
-            )}
-          </div>
-
-          {/* Hours Worked */}
-          <div className="space-y-2">
-            <Label htmlFor="hoursWorked" className="text-sm font-medium text-slate-700 flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              Hours Worked *
-            </Label>
-            <Input
-              id="hoursWorked"
-              type="number"
-              step="0.5"
-              min="0"
-              max="200"
-              placeholder="Enter hours worked"
-              value={formData.hoursWorked}
-              onChange={(e) => {
-                setFormData(prev => ({ ...prev, hoursWorked: e.target.value }));
-                if (validationErrors.hoursWorked) {
-                  setValidationErrors(prev => ({ ...prev, hoursWorked: '' }));
-                }
-              }}
-              className={cn(
-                "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
-                validationErrors.hoursWorked && "border-red-500 focus:border-red-500 focus:ring-red-500"
+                    }}
+                    disabled={(date) => date > new Date() || date < new Date("2020-01-01")}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              {validationErrors.taskDate && (
+                <div className="flex items-center gap-1 text-red-600 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {validationErrors.taskDate}
+                </div>
               )}
-              required
-            />
-            {validationErrors.hoursWorked && (
-              <div className="flex items-center gap-1 text-red-600 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.hoursWorked}
-              </div>
-            )}
+            </div>
+
+            {/* Hours Worked */}
+            <div className="space-y-2">
+              <Label htmlFor="hoursWorked" className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Hours Worked *
+              </Label>
+              <Input
+                id="hoursWorked"
+                type="number"
+                step="0.5"
+                min="0"
+                max="200"
+                placeholder="Enter hours worked"
+                value={formData.hoursWorked}
+                onChange={(e) => {
+                  setFormData(prev => ({ ...prev, hoursWorked: e.target.value }));
+                  if (validationErrors.hoursWorked) {
+                    setValidationErrors(prev => ({ ...prev, hoursWorked: '' }));
+                  }
+                }}
+                className={cn(
+                  "h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+                  validationErrors.hoursWorked && "border-red-500 focus:border-red-500 focus:ring-red-500"
+                )}
+                required
+              />
+              {validationErrors.hoursWorked && (
+                <div className="flex items-center gap-1 text-red-600 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {validationErrors.hoursWorked}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Description */}
+          {/* Row 3: Description (full width) */}
           <div className="space-y-2">
             <Label htmlFor="description" className="text-sm font-medium text-slate-700">
               Description *
